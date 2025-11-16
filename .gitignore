@@ -38,3 +38,5 @@ desktop.ini
 # Electron
 out/
 *.electron/
+
+.claude/
