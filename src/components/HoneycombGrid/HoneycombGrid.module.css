@@ -1,0 +1,164 @@
+.honeycombContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.honeycombGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.honeycombCell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Offset odd rows for honeycomb effect */
+.honeycombCell.offset {
+  transform: translateX(50%);
+}
+
+.honeycombButton {
+  position: relative;
+  width: var(--touch-target-comfortable);
+  height: var(--touch-target-comfortable);
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--button-color, var(--color-accent-cyan));
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+/* Honeycomb hexagon shape using clip-path */
+.honeycombButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--button-color, var(--color-accent-cyan)),
+    transparent
+  );
+  opacity: 0.1;
+  transition: opacity var(--transition-fast);
+}
+
+.honeycombButton:hover::before {
+  opacity: 0.2;
+}
+
+.honeycombButton.pressed {
+  transform: scale(0.95);
+  box-shadow: 0 0 20px var(--button-color, var(--color-accent-cyan));
+}
+
+.honeycombButton.pressed::before {
+  opacity: 0.3;
+}
+
+.honeycombButton.empty {
+  border-style: dashed;
+  border-color: var(--border-color-primary);
+  opacity: 0.5;
+}
+
+.honeycombButton.empty:hover {
+  opacity: 0.8;
+}
+
+.honeycombButton.executing {
+  pointer-events: none;
+}
+
+.buttonContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  z-index: 1;
+}
+
+.buttonIcon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.buttonLabel {
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 var(--spacing-xs);
+}
+
+/* Spinner for executing state */
+.spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+
+.spinner::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-text-tertiary);
+  border-top-color: var(--button-color, var(--color-accent-cyan));
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .honeycombGrid {
+    max-width: 500px;
+    gap: var(--spacing-md);
+  }
+
+  .honeycombButton {
+    width: var(--touch-target-large);
+    height: var(--touch-target-large);
+  }
+
+  .buttonIcon {
+    font-size: 32px;
+  }
+
+  .buttonLabel {
+    font-size: 12px;
+  }
+}

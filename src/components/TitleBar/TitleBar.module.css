@@ -1,0 +1,175 @@
+.titleBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--border-color-primary);
+  z-index: var(--z-overlay);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Title Section */
+.titleSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-md);
+  height: 100%;
+  -webkit-app-region: no-drag; /* Not draggable */
+}
+
+.appIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.appTitle {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--gradient-rgb-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Draggable Region */
+.dragRegion {
+  flex: 1;
+  height: 100%;
+  -webkit-app-region: drag; /* Makes this area draggable */
+  cursor: move;
+}
+
+/* Window Controls */
+.controls {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-app-region: no-drag; /* Controls are not draggable */
+}
+
+.controlButton {
+  width: 46px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  touch-action: manipulation;
+}
+
+.controlButton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  transition: background var(--transition-fast);
+}
+
+.controlButton:hover::before {
+  background: var(--color-hover);
+}
+
+.controlButton:active {
+  transform: scale(0.95);
+}
+
+.controlButton svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* Minimize Button */
+.minimize:hover {
+  color: var(--color-accent-cyan);
+}
+
+.minimize:hover::before {
+  background: rgba(0, 217, 255, 0.1);
+}
+
+/* Maximize Button */
+.maximize:hover {
+  color: var(--color-accent-purple);
+}
+
+.maximize:hover::before {
+  background: rgba(157, 0, 255, 0.1);
+}
+
+/* Fullscreen Button */
+.fullscreen:hover {
+  color: var(--color-accent-magenta);
+}
+
+.fullscreen:hover::before {
+  background: rgba(255, 0, 255, 0.1);
+}
+
+/* Close Button */
+.close:hover {
+  color: white;
+  background: var(--color-error);
+}
+
+.close:hover::before {
+  background: var(--color-error);
+}
+
+/* RGB Glow Effect on Active */
+.controlButton:active.minimize {
+  box-shadow: inset 0 0 20px rgba(0, 217, 255, 0.3);
+}
+
+.controlButton:active.maximize {
+  box-shadow: inset 0 0 20px rgba(157, 0, 255, 0.3);
+}
+
+.controlButton:active.fullscreen {
+  box-shadow: inset 0 0 20px rgba(255, 0, 255, 0.3);
+}
+
+.controlButton:active.close {
+  box-shadow: inset 0 0 20px rgba(255, 68, 68, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .titleSection {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .appTitle {
+    display: none; /* Hide title on small screens */
+  }
+
+  .controlButton {
+    width: 44px;
+  }
+}
+
+/* Animation for title bar */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.titleBar {
+  animation: slideDown var(--transition-normal);
+}

@@ -1,0 +1,128 @@
+.dashboard {
+  width: 100vw;
+  height: calc(100vh - 44px);
+  margin-top: 44px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+  touch-action: pan-y; /* Allow vertical scrolling but handle horizontal swipes */
+}
+
+.viewContainer {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+.panel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  transition: all var(--transition-slow);
+  position: relative;
+}
+
+.panel.fullWidth {
+  flex: 1 1 100%;
+}
+
+.panel.hidden {
+  flex: 0 0 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.buttonsPanel {
+  background: var(--color-bg-primary);
+}
+
+.metricsPanel {
+  background: var(--color-bg-primary);
+  border-left: 1px solid var(--border-color-primary);
+}
+
+.metricsPanel.fullWidth {
+  border-left: none;
+}
+
+/* View Mode Indicator */
+.viewIndicator {
+  position: absolute;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--spacing-sm);
+  background: var(--color-bg-elevated);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color-primary);
+  z-index: var(--z-elevated);
+  box-shadow: var(--shadow-md);
+}
+
+.indicatorDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-text-tertiary);
+  transition: all var(--transition-fast);
+  opacity: 0.5;
+  touch-action: manipulation;
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.indicatorDot::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.indicatorDot.active::before {
+  background: var(--color-accent-cyan);
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.indicatorDot:hover::before {
+  transform: scale(1.2);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .viewContainer {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .metricsPanel {
+    border-left: none;
+  }
+
+  .panel {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color-primary);
+  }
+}
+
+/* Animation for panel transitions */
+@media (prefers-reduced-motion: no-preference) {
+  .panel {
+    transition: flex var(--transition-slow), opacity var(--transition-slow);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    transition: none;
+  }
+}

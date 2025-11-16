@@ -1,0 +1,80 @@
+:root {
+  /* RGB Dark Theme Colors */
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #13131a;
+  --color-bg-tertiary: #1a1a24;
+  --color-bg-elevated: #202030;
+
+  /* RGB Accent Colors */
+  --color-accent-cyan: #00d9ff;
+  --color-accent-magenta: #ff00ff;
+  --color-accent-purple: #9d00ff;
+  --color-accent-blue: #0066ff;
+  --color-accent-pink: #ff0080;
+
+  /* Gradients */
+  --gradient-rgb-1: linear-gradient(135deg, var(--color-accent-cyan), var(--color-accent-magenta));
+  --gradient-rgb-2: linear-gradient(135deg, var(--color-accent-purple), var(--color-accent-pink));
+  --gradient-rgb-3: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-cyan));
+
+  /* Text Colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #b0b0c0;
+  --color-text-tertiary: #808090;
+  --color-text-muted: #606070;
+
+  /* Status Colors */
+  --color-success: #00ff88;
+  --color-warning: #ffaa00;
+  --color-error: #ff4444;
+  --color-info: var(--color-accent-cyan);
+
+  /* Interactive States */
+  --color-hover: rgba(255, 255, 255, 0.1);
+  --color-active: rgba(255, 255, 255, 0.2);
+  --color-focus: var(--color-accent-cyan);
+
+  /* Borders */
+  --border-color-primary: rgba(255, 255, 255, 0.1);
+  --border-color-secondary: rgba(255, 255, 255, 0.05);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --shadow-glow-cyan: 0 0 20px rgba(0, 217, 255, 0.5);
+  --shadow-glow-magenta: 0 0 20px rgba(255, 0, 255, 0.5);
+  --shadow-glow-purple: 0 0 20px rgba(157, 0, 255, 0.5);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* Touch Targets */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 60px;
+  --touch-target-large: 80px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 100ms ease-out;
+  --transition-normal: 200ms ease-out;
+  --transition-slow: 300ms ease-out;
+
+  /* Z-Index */
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-overlay: 100;
+  --z-modal: 1000;
+  --z-tooltip: 2000;
+}
