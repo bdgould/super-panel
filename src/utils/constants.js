@@ -44,7 +44,10 @@ export const VIEW_MODES = {
 // Default button configuration
 export const DEFAULT_BUTTON_CONFIG = {
   label: 'New Button',
-  icon: '⚡',
+  icon: {
+    type: 'emoji',
+    value: '⚡',
+  },
   actionType: ACTION_TYPES.LAUNCH_APP,
   actionData: {},
   color: '#00d9ff',

@@ -34,7 +34,7 @@
   width: var(--touch-target-comfortable);
   height: var(--touch-target-comfortable);
   background: var(--color-bg-elevated);
-  border: 2px solid var(--button-color, var(--color-accent-cyan));
+  border: none;
   border-radius: var(--radius-lg);
   color: var(--color-text-primary);
   display: flex;
@@ -75,8 +75,6 @@
 }
 
 .honeycombButton.empty {
-  border-style: dashed;
-  border-color: var(--border-color-primary);
   opacity: 0.5;
 }
 
@@ -100,6 +98,12 @@
 .buttonIcon {
   font-size: 24px;
   line-height: 1;
+}
+
+.buttonIconImage {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .buttonLabel {
@@ -156,6 +160,11 @@
 
   .buttonIcon {
     font-size: 32px;
+  }
+
+  .buttonIconImage {
+    width: 48px;
+    height: 48px;
   }
 
   .buttonLabel {

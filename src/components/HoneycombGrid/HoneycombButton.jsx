@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useLongPress } from '../../hooks/useLongPress';
 import { useConfig } from '../../contexts/ConfigContext';
+import { ALL_ICONS } from '../IconPicker/iconPresets';
 import styles from './HoneycombGrid.module.css';
 
 export function HoneycombButton({ buttonId, config, onConfigure }) {
   const { executeAction } = useConfig();
   const [isPressed, setIsPressed] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [imagePath, setImagePath] = useState(null);
 
   const handlePress = async () => {
     if (!config || isExecuting) return;
@@ -38,9 +41,54 @@ export function HoneycombButton({ buttonId, config, onConfigure }) {
 
   // Use default values if no config
   const label = config?.label || 'Empty';
-  const icon = config?.icon || '+';
+  const icon = config?.icon || { type: 'emoji', value: '+' };
   const color = config?.color || 'var(--color-accent-cyan)';
   const isEmpty = !config;
+
+  // Handle icon format - support both old (string) and new (object) formats
+  const iconData = typeof icon === 'string'
+    ? { type: 'emoji', value: icon }
+    : icon;
+
+  // Load image path for image-type icons
+  useEffect(() => {
+    if (iconData.type === 'image' && iconData.value) {
+      window.electron.config.getIconPath(iconData.value)
+        .then(result => {
+          if (result.success) {
+            // Convert file path to file:// URL for img src
+            setImagePath(`file://${result.filepath.replace(/\\/g, '/')}`);
+          }
+        })
+        .catch(error => {
+          console.error('Failed to load icon image:', error);
+          setImagePath(null);
+        });
+    }
+  }, [iconData.type, iconData.value]);
+
+  // Render icon based on type
+  const renderIcon = () => {
+    if (iconData.type === 'emoji') {
+      return <span className={styles.buttonIcon}>{iconData.value}</span>;
+    } else if (iconData.type === 'fontawesome') {
+      const iconInfo = ALL_ICONS.find(i => i.name === iconData.value);
+      if (iconInfo) {
+        return <FontAwesomeIcon icon={iconInfo.icon} className={styles.buttonIcon} />;
+      }
+      // Fallback if icon not found
+      return <span className={styles.buttonIcon}>⚡</span>;
+    } else if (iconData.type === 'image') {
+      if (imagePath) {
+        return <img src={imagePath} alt={label} className={styles.buttonIconImage} />;
+      }
+      // Loading or fallback
+      return <span className={styles.buttonIcon}>⚡</span>;
+    }
+
+    // Default fallback
+    return <span className={styles.buttonIcon}>⚡</span>;
+  };
 
   return (
     <button
@@ -50,7 +98,7 @@ export function HoneycombButton({ buttonId, config, onConfigure }) {
       aria-label={isEmpty ? 'Configure button' : label}
     >
       <div className={styles.buttonContent}>
-        <span className={styles.buttonIcon}>{icon}</span>
+        {renderIcon()}
         <span className={styles.buttonLabel}>{label}</span>
       </div>
       {isExecuting && <div className={styles.spinner} />}

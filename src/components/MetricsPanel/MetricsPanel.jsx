@@ -10,7 +10,7 @@ import { TempDetail } from './TempDetail';
 import { formatSpeed } from '../../utils/constants';
 import styles from './MetricsPanel.module.css';
 
-export function MetricsPanel() {
+export function MetricsPanel({ isFullScreen = false }) {
   const { cpu, memory, network, disk, temperature } = useMetrics();
   const [expandedMetric, setExpandedMetric] = useState(null);
 
@@ -42,7 +42,7 @@ export function MetricsPanel() {
 
   return (
     <div className={styles.metricsPanel}>
-      <div className={styles.compactGrid}>
+      <div className={`${styles.compactGrid} ${isFullScreen ? styles.threeColumn : ''}`}>
         {/* CPU Card */}
         <CompactMetricCard
           title="CPU"

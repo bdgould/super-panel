@@ -3,6 +3,28 @@ import { DEFAULT_BUTTON_CONFIG } from '../utils/constants';
 
 const ConfigContext = createContext();
 
+// Helper function to migrate old icon format (string) to new format (object)
+const migrateIconFormat = (icon) => {
+  // If icon is already an object with type property, it's already migrated
+  if (icon && typeof icon === 'object' && icon.type) {
+    return icon;
+  }
+
+  // If icon is a string, convert to new format (assume emoji)
+  if (typeof icon === 'string') {
+    return {
+      type: 'emoji',
+      value: icon,
+    };
+  }
+
+  // Default fallback
+  return {
+    type: 'emoji',
+    value: '⚡',
+  };
+};
+
 export function ConfigProvider({ children }) {
   const [buttons, setButtons] = useState({});
   const [settings, setSettings] = useState({});
@@ -17,7 +39,35 @@ export function ConfigProvider({ children }) {
           window.electron.config.getSettings(),
         ]);
 
-        setButtons(buttonsData);
+        // Migrate icon format for all buttons
+        const migratedButtons = {};
+        let needsMigration = false;
+
+        Object.entries(buttonsData).forEach(([buttonId, config]) => {
+          const originalIcon = config.icon;
+          const migratedIcon = migrateIconFormat(originalIcon);
+
+          // Check if migration was needed
+          if (originalIcon !== migratedIcon) {
+            needsMigration = true;
+          }
+
+          migratedButtons[buttonId] = {
+            ...config,
+            icon: migratedIcon,
+          };
+        });
+
+        // If migration occurred, save the migrated data back to storage
+        if (needsMigration) {
+          console.log('Migrating icon format for buttons...');
+          // Save each migrated button
+          for (const [buttonId, config] of Object.entries(migratedButtons)) {
+            await window.electron.config.saveButton(buttonId, config);
+          }
+        }
+
+        setButtons(migratedButtons);
         setSettings(settingsData);
       } catch (error) {
         console.error('Error loading configuration:', error);

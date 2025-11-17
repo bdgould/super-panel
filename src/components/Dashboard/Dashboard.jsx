@@ -51,8 +51,11 @@ export function Dashboard() {
     });
   };
 
+  // Only apply swipe handlers when modal is closed
+  const dashboardProps = configModal.isOpen ? {} : swipeHandlers;
+
   return (
-    <div className={styles.dashboard} {...swipeHandlers}>
+    <div className={styles.dashboard} {...dashboardProps}>
       <div className={styles.viewContainer}>
         {/* Buttons Panel */}
         <div
@@ -69,7 +72,7 @@ export function Dashboard() {
             viewMode === VIEW_MODES.METRICS_ONLY ? styles.fullWidth : ''
           } ${viewMode === VIEW_MODES.BUTTONS_ONLY ? styles.hidden : ''}`}
         >
-          <MetricsPanel />
+          <MetricsPanel isFullScreen={viewMode === VIEW_MODES.METRICS_ONLY} />
         </div>
       </div>
 

@@ -40,7 +40,7 @@
 
 .metricsPanel {
   background: var(--color-bg-primary);
-  border-left: 1px solid var(--border-color-primary);
+  border-left: none;
 }
 
 .metricsPanel.fullWidth {
@@ -50,51 +50,49 @@
 /* View Mode Indicator */
 .viewIndicator {
   position: absolute;
-  bottom: var(--spacing-lg);
+  bottom: var(--spacing-md);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 4px;
   background: var(--color-bg-elevated);
-  padding: var(--spacing-sm);
+  padding: 4px;
   border-radius: var(--radius-full);
-  border: 1px solid var(--border-color-primary);
+  border: none;
   z-index: var(--z-elevated);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .indicatorDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--color-text-tertiary);
-  transition: all var(--transition-fast);
-  opacity: 0.5;
   touch-action: manipulation;
-  min-width: var(--touch-target-min);
-  min-height: var(--touch-target-min);
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .indicatorDot::before {
   content: '';
-  width: 12px;
-  height: 12px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--color-text-tertiary);
+  opacity: 0.5;
   transition: all var(--transition-fast);
 }
 
 .indicatorDot.active::before {
   background: var(--color-accent-cyan);
   box-shadow: var(--shadow-glow-cyan);
+  opacity: 1;
 }
 
 .indicatorDot:hover::before {
-  transform: scale(1.2);
+  transform: scale(1.3);
 }
 
 /* Responsive adjustments */
@@ -110,7 +108,7 @@
 
   .panel {
     border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color-primary);
+    border: none;
   }
 }
 

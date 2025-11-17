@@ -27,6 +27,8 @@ contextBridge.exposeInMainWorld('electron', {
     deleteButton: (buttonId) => ipcRenderer.invoke('config:delete-button', buttonId),
     getSettings: () => ipcRenderer.invoke('config:get-settings'),
     saveSettings: (settings) => ipcRenderer.invoke('config:save-settings', settings),
+    uploadIcon: (buttonId, base64Data, filename) => ipcRenderer.invoke('config:upload-icon', buttonId, base64Data, filename),
+    getIconPath: (filename) => ipcRenderer.invoke('config:get-icon-path', filename),
   },
 
   // App controls

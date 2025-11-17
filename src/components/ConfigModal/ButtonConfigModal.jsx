@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useConfig } from '../../contexts/ConfigContext';
 import { ACTION_TYPES, SYSTEM_CONTROLS, DEFAULT_BUTTON_CONFIG } from '../../utils/constants';
+import IconPicker from '../IconPicker/IconPicker';
 import styles from './ButtonConfigModal.module.css';
 
 export function ButtonConfigModal({ isOpen, onClose, buttonId, initialConfig }) {
@@ -18,10 +19,25 @@ export function ButtonConfigModal({ isOpen, onClose, buttonId, initialConfig }) 
     if (isOpen) {
       const config = initialConfig || DEFAULT_BUTTON_CONFIG;
       setLabel(config.label || DEFAULT_BUTTON_CONFIG.label);
-      setIcon(config.icon || DEFAULT_BUTTON_CONFIG.icon);
+
+      // Handle both old (string) and new (object) icon formats
+      const iconValue = config.icon || DEFAULT_BUTTON_CONFIG.icon;
+      if (typeof iconValue === 'string') {
+        // Migrate old string format to new object format
+        setIcon({ type: 'emoji', value: iconValue });
+      } else {
+        setIcon(iconValue);
+      }
+
       setColor(config.color || DEFAULT_BUTTON_CONFIG.color);
       setActionType(config.actionType || DEFAULT_BUTTON_CONFIG.actionType);
-      setActionData(config.actionData || {});
+
+      // Initialize actionData with defaults for system-control if needed
+      const configActionData = config.actionData || {};
+      if (config.actionType === ACTION_TYPES.SYSTEM_CONTROL && !configActionData.action) {
+        configActionData.action = SYSTEM_CONTROLS.LOCK;
+      }
+      setActionData(configActionData);
     }
   }, [isOpen, initialConfig]);
 
@@ -64,6 +80,16 @@ export function ButtonConfigModal({ isOpen, onClose, buttonId, initialConfig }) 
     setActionData(prev => ({ ...prev, [key]: value }));
   };
 
+  // When actionType changes to system-control, ensure default action is set
+  const handleActionTypeChange = (newActionType) => {
+    setActionType(newActionType);
+
+    // If changing to system-control and no action is set, set default
+    if (newActionType === ACTION_TYPES.SYSTEM_CONTROL && !actionData.action) {
+      setActionData(prev => ({ ...prev, action: SYSTEM_CONTROLS.LOCK }));
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -94,14 +120,11 @@ export function ButtonConfigModal({ isOpen, onClose, buttonId, initialConfig }) 
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Icon (emoji or character)</label>
-              <input
-                type="text"
-                className={styles.input}
+              <label className={styles.label}>Icon</label>
+              <IconPicker
                 value={icon}
-                onChange={(e) => setIcon(e.target.value)}
-                placeholder="⚡"
-                maxLength={2}
+                onChange={setIcon}
+                buttonId={buttonId}
               />
             </div>
 
@@ -134,7 +157,7 @@ export function ButtonConfigModal({ isOpen, onClose, buttonId, initialConfig }) 
               <select
                 className={styles.select}
                 value={actionType}
-                onChange={(e) => setActionType(e.target.value)}
+                onChange={(e) => handleActionTypeChange(e.target.value)}
               >
                 <option value={ACTION_TYPES.LAUNCH_APP}>Launch Application</option>
                 <option value={ACTION_TYPES.RUN_COMMAND}>Run Command</option>
