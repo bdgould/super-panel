@@ -47,6 +47,32 @@
   cursor: move;
 }
 
+/* Settings Button */
+.settingsButton {
+  width: 46px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  touch-action: manipulation;
+  -webkit-app-region: no-drag;
+}
+
+.settingsButton:hover {
+  color: var(--color-accent-cyan);
+  background: rgba(0, 217, 255, 0.1);
+}
+
+.settingsButton:active {
+  transform: scale(0.95);
+}
+
 /* Window Controls */
 .controls {
   display: flex;

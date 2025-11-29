@@ -58,6 +58,13 @@ export const HONEYCOMB_CONFIG = {
   BUTTON_SIZE: BUTTON_SIZE.COMFORTABLE,
   GAP: 8,
   COLUMNS: 4,
+  ROWS: 3,
+};
+
+// Default grid dimensions
+export const DEFAULT_GRID_DIMENSIONS = {
+  rows: 3,
+  columns: 4,
 };
 
 // Format bytes to human readable

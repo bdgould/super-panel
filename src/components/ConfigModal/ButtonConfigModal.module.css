@@ -225,3 +225,24 @@
   cursor: not-allowed;
   transform: none;
 }
+
+.helpText {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-top: var(--spacing-xs);
+}
+
+.infoBox {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--border-color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.infoText {
+  font-size: 14px;
+  color: var(--color-text-primary);
+}

@@ -1,20 +1,29 @@
 import { useConfig } from '../../contexts/ConfigContext';
 import { HoneycombButton } from './HoneycombButton';
-import { HONEYCOMB_CONFIG } from '../../utils/constants';
+import { DEFAULT_GRID_DIMENSIONS } from '../../utils/constants';
 import styles from './HoneycombGrid.module.css';
 
 export function HoneycombGrid({ onConfigureButton }) {
-  const { buttons } = useConfig();
+  const { buttons, settings } = useConfig();
+
+  // Get grid dimensions from settings, fallback to defaults
+  const rows = settings?.gridDimensions?.rows || DEFAULT_GRID_DIMENSIONS.rows;
+  const columns = settings?.gridDimensions?.columns || DEFAULT_GRID_DIMENSIONS.columns;
 
   // Generate button IDs for honeycomb grid
-  // Default to 12 buttons (3 rows of 4)
-  const buttonIds = Array.from({ length: 12 }, (_, i) => `button-${i}`);
+  const totalButtons = rows * columns;
+  const buttonIds = Array.from({ length: totalButtons }, (_, i) => `button-${i}`);
 
   return (
     <div className={styles.honeycombContainer}>
-      <div className={styles.honeycombGrid}>
+      <div
+        className={styles.honeycombGrid}
+        style={{
+          gridTemplateColumns: `repeat(${columns}, 1fr)`,
+        }}
+      >
         {buttonIds.map((buttonId, index) => {
-          const isOddRow = Math.floor(index / HONEYCOMB_CONFIG.COLUMNS) % 2 === 1;
+          const isOddRow = Math.floor(index / columns) % 2 === 1;
 
           return (
             <div

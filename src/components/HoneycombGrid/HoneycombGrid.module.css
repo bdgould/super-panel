@@ -11,9 +11,9 @@
 
 .honeycombGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* grid-template-columns set dynamically via inline style */
   gap: var(--spacing-sm);
-  max-width: 400px;
+  max-width: fit-content;
   margin: 0 auto;
 }
 
@@ -149,7 +149,6 @@
 /* Responsive adjustments */
 @media (min-width: 768px) {
   .honeycombGrid {
-    max-width: 500px;
     gap: var(--spacing-md);
   }
 
