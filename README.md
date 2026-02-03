@@ -2,6 +2,8 @@
 
 A touchscreen-optimized Electron dashboard for Windows with configurable buttons and real-time system metrics.
 
+![super-panel view](docs/screen.png)
+
 ## Features
 
 - **Honeycomb Button Grid**: Customizable buttons in a honeycomb layout with visual feedback

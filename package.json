@@ -59,7 +59,7 @@
           ]
         }
       ],
-      "icon": "build/icon.ico"
+      "icon": "logo.ico"
     },
     "nsis": {
       "oneClick": false,

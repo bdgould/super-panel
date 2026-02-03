@@ -17,6 +17,7 @@ function createWindow() {
     frame: false, // Frameless for touchscreen kiosk-like experience
     fullscreen: false, // Start windowed, can toggle to fullscreen
     backgroundColor: '#0a0a0f',
+    icon: path.join(__dirname, '../logo.png'), // App icon for taskbar
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
