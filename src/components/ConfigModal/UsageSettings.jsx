@@ -15,8 +15,8 @@ export function UsageSettings({ enabled, onChange }) {
   };
   return (
     <section className={styles.usageSection} aria-labelledby="usage-settings-title">
-      <h3 id="usage-settings-title" className={styles.label}>AI usage</h3>
-      <p className={styles.helpText}>Connect each account to show its usage windows. Sign-in and Disconnect take effect immediately; dashboard visibility changes when you Save.</p>
+      <h3 id="usage-settings-title" className={styles.sectionTitle}>AI accounts & usage</h3>
+      <p className={styles.sectionDescription}>Connect each account to show its usage windows. Sign-in and Disconnect take effect immediately; dashboard visibility changes when you Save.</p>
       {Object.entries(names).map(([id, name]) => {
         const state = status[id];
         const connecting = state?.connection === 'connecting';
