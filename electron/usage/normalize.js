@@ -36,19 +36,24 @@ export function normalizeCodex(payload, account, observedAt = Date.now()) {
   return { provider: 'codex', source: 'codex-app-server', account: { id: account.email, label: account.email, plan: text(account.planType) }, observedAt, windows };
 }
 
-// Extra spending and truly rolling limits are deliberately excluded. Claude
-// timing remains unverified until the live connection gate; no invented tick.
+// Claude documents bounded 5-hour sessions and weekly limits. The packaged
+// prototype verified these named windows and stable reset timestamps across
+// independent reads. Only these recognized durations support a pace tick.
 export function normalizeClaude(payload, organization, observedAt = Date.now()) {
   if (!text(organization?.uuid)) throw new UsageError('invalid-data', 'Claude account could not be identified.');
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new UsageError('invalid-data', 'Claude returned unreadable usage data.');
+  }
   const windows = [];
   for (const [key, label] of [['five_hour', '5-hour window'], ['seven_day', '7-day window'],
-    ['seven_day_sonnet', 'Sonnet · 7-day window'], ['seven_day_opus', 'Opus · 7-day window']]) {
+    ['seven_day_sonnet', 'Sonnet · 7-day window'], ['seven_day_opus', 'Opus · 7-day window'], ['seven_day_fable', 'Fable · 7-day window']]) {
     const value = payload?.[key];
     if (value == null) continue;
     if (!percent(value.utilization)) throw new UsageError('invalid-data', 'Claude returned an invalid usage percentage.');
     const parsed = typeof value.resets_at === 'string' ? Date.parse(value.resets_at) : NaN;
     windows.push({ id: key, label, usedPercent: value.utilization,
-      durationMs: null, resetsAt: Number.isFinite(parsed) ? parsed : null, paceSupported: false });
+      durationMs: key === 'five_hour' ? 18000000 : 604800000,
+      resetsAt: Number.isFinite(parsed) ? parsed : null, paceSupported: true });
   }
   return { provider: 'claude', source: 'claude-web', account: { id: organization.uuid,
     label: text(organization.name) || 'Claude account', plan: null }, observedAt, windows };

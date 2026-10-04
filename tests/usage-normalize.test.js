@@ -25,11 +25,11 @@ describe('usage normalization', () => {
     expect(() => normalizeCodex({ rateLimits: { primary: { ...codexWindow, usedPercent } } }, account)).toThrow('percentage');
     expect(() => normalizeClaude({ five_hour: { utilization: usedPercent } }, { uuid: 'org' })).toThrow('percentage');
   });
-  it('converts Claude timestamps, preserves missing windows, and withholds unverified timing', () => {
+  it('converts Claude timestamps and uses the verified named window durations', () => {
     const result = normalizeClaude({ five_hour: { utilization: 0, resets_at: '2026-10-04T20:00:00Z' },
       seven_day: null }, { uuid: 'org', name: 'Personal' }, 123);
     expect(result.windows).toEqual([{ id: 'five_hour', label: '5-hour window', usedPercent: 0,
-      resetsAt: Date.parse('2026-10-04T20:00:00Z'), durationMs: null, paceSupported: false }]);
+      resetsAt: Date.parse('2026-10-04T20:00:00Z'), durationMs: 18000000, paceSupported: true }]);
     expect(normalizeClaude({}, { uuid: 'org' }).windows).toEqual([]);
   });
   it('does not treat malformed timestamps as current reset times', () => {

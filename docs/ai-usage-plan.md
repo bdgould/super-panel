@@ -72,9 +72,9 @@ Extend Settings with an **AI usage** section containing independent Claude and C
 
 ## 4. Cards and pace calculation
 
-Place the optional usage section above the circular system-metric grid. Use one full-width card per enabled provider in split view; allow two columns in the wider metrics-only view if both cards remain legible. Verify at the application's 1024 by 600 default size.
+Place one compact card per enabled provider to the left of the circular system-metric grid. Shrink the system cards when usage cards are visible, and stack the groups on very narrow panels. Verify at the application's 1024 by 600 default size.
 
-Each available window has a label, numeric percentage, filled usage bar, vertical pace tick, and reset countdown. Use stable provider colors. Text explains above/below pace; color alone never carries meaning. Show observation age and connection problems. Long-press can expose exact reset times and source details, but essential information must remain visible.
+Each card has concentric 270-degree usage arcs: weekly on the outside, session on the inside. Show both percentages, reset countdowns, observation age, and connection problems. A radial tick on each arc marks elapsed time. Press and hold anywhere on the card to open its details; keyboard Enter/Space also opens it. The modal lists every available window, with usage bars, pace ticks, above/below-pace text, exact resets, and source. Use stable provider colors, with labeled percentages so color alone never carries meaning. No info icon or dashboard legend is needed.
 
 For a confirmed bounded window with duration D and reset time R:
 

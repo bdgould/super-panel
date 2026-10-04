@@ -13,14 +13,14 @@ function App() {
   return (
     <ConfigProvider>
       <UsageProvider>
-      <MetricsProvider>
-        <TitleBar onOpenSettings={() => setIsSettingsOpen(true)} />
-        <Dashboard />
-        <SettingsModal
-          isOpen={isSettingsOpen}
-          onClose={() => setIsSettingsOpen(false)}
-        />
-      </MetricsProvider>
+        <MetricsProvider>
+          <TitleBar onOpenSettings={() => setIsSettingsOpen(true)} />
+          <Dashboard />
+          <SettingsModal
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+          />
+        </MetricsProvider>
       </UsageProvider>
     </ConfigProvider>
   );

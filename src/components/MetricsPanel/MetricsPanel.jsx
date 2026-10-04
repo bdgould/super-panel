@@ -10,6 +10,10 @@ import { TempDetail } from './TempDetail';
 import { GPUDetail } from './GPUDetail';
 import { formatSpeed } from '../../utils/constants';
 import styles from './MetricsPanel.module.css';
+import { UsagePanel } from '../UsagePanel/UsagePanel';
+import { useConfig } from '../../contexts/ConfigContext';
+import { useUsage } from '../../contexts/UsageContext';
+import { visibleUsageProviders } from '../../utils/usage';
 
 const getTempColor = (temp) => {
   if (temp == null) return 'var(--color-text-secondary)';
@@ -20,6 +24,9 @@ const getTempColor = (temp) => {
 
 export function MetricsPanel({ isFullScreen = false }) {
   const { cpu, memory, network, disk, temperature, gpu } = useMetrics();
+  const { settings } = useConfig();
+  const { status } = useUsage();
+  const hasUsage = visibleUsageProviders(settings, status).length > 0;
   const [expandedMetric, setExpandedMetric] = useState(null);
 
   const openDetail = (metric) => {
@@ -67,6 +74,8 @@ export function MetricsPanel({ isFullScreen = false }) {
 
   return (
     <div className={styles.metricsPanel}>
+      <div className={`${styles.metricLayout} ${hasUsage ? styles.withUsage : ''}`}>
+      <UsagePanel isFullScreen={isFullScreen} />
       <div className={`${styles.compactGrid} ${isFullScreen ? styles.threeColumn : ''}`}>
         {/* CPU Card */}
         <CompactMetricCard
@@ -125,6 +134,7 @@ export function MetricsPanel({ isFullScreen = false }) {
           color={getTempColor(temperatureDisplay.value)}
           onExpand={() => openDetail('temperature')}
         />
+      </div>
       </div>
 
       {/* Detailed Modals */}

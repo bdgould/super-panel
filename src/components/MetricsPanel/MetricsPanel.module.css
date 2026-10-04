@@ -1,10 +1,31 @@
 .metricsPanel {
+  container-type: inline-size;
   width: 100%;
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--spacing-lg);
   background: var(--color-bg-primary);
+}
+
+.metricLayout { width: 100%; max-width: 900px; margin: 0 auto; }
+.withUsage { display: grid; grid-template-columns: minmax(140px, 180px) minmax(0, 1fr); gap: 12px; max-width: 800px; align-items: start; }
+.withUsage .compactGrid { width: 100%; max-width: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.withUsage .compactCard { min-height: 128px; padding: 16px 8px; gap: 6px; }
+.withUsage .circularProgress { width: 72px; height: 72px; }
+.withUsage .valueNumber { font-size: 21px; }
+.withUsage .cardLabel { font-size: 11px; letter-spacing: .7px; }
+.withUsage .cardIcon { font-size: 16px; }
+@container (max-width: 450px) {
+  .withUsage { grid-template-columns: minmax(125px, 145px) minmax(0, 1fr); gap: 8px; }
+  .withUsage .compactGrid { gap: 8px; }
+  .withUsage .compactCard { min-height: 128px; padding: 24px 4px 10px; }
+  .withUsage .circularProgress { width: 62px; height: 62px; }
+  .withUsage .valueNumber { font-size: 18px; }
+}
+@container (max-width: 320px) {
+  .withUsage { display: block; }
+  .withUsage > section { margin-bottom: 16px; }
 }
 
 /* Compact Grid Layout */
