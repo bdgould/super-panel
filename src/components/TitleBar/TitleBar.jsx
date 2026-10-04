@@ -60,6 +60,9 @@ export function TitleBar({ onOpenSettings }) {
       <div className={styles.titleSection}>
         <span className={styles.appIcon}>⚡</span>
         <span className={styles.appTitle}>SuperPanel</span>
+        {update?.currentVersion && (
+          <span className={styles.appVersion}>v{update.currentVersion}</span>
+        )}
       </div>
 
       {/* Draggable Region */}
