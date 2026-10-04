@@ -41,6 +41,8 @@ try {
   await waitCount(2);
   assert.equal(await page.getByRole('progressbar').count(), 4);
   assert.equal(await page.locator('[data-pace-marker]').count(), 4);
+  assert.ok(!(await cards.first().innerText()).match(/reset|updated/i), 'Reset and update text are reserved for details');
+  assert.equal(await cards.first().getByRole('img', { name: 'Claude', exact: true }).count(), 1);
   await page.screenshot({ path: 'logs/usage-ui-split.png' });
   // Usage stays left of the system metrics in the normal 1024x600 split layout.
   const ai = await cards.first().boundingBox();
@@ -52,9 +54,11 @@ try {
   }), 'Both cards fit the default height');
   await cards.first().hover();
   await page.mouse.down();
+  assert.notEqual(await cards.first().evaluate(card => getComputedStyle(card).boxShadow), 'none', 'Press feedback is visible');
   await page.waitForTimeout(900);
   await page.mouse.up();
   await page.getByText('Last reported usage: 35%', { exact: true }).waitFor();
+  await page.getByText(/Resets in 2h/).waitFor();
   assert.equal(await page.locator('[data-detail-pace-marker]').count(), 2);
   await page.getByRole('button', { name: 'Close', exact: true }).last().click();
   await page.getByRole('button', { name: 'Metrics only view' }).click();
@@ -70,7 +74,10 @@ try {
   await page.getByText('Test network interruption', { exact: true }).waitFor();
   assert.equal(await page.locator('[data-pace-marker]').count(), 1);
   assert.equal(await page.getByRole('progressbar').count(), 3);
-  await page.getByText('Awaiting updated window', { exact: true }).waitFor();
+  await cards.last().focus();
+  await page.keyboard.press('Enter');
+  await page.getByText('Awaiting updated window', { exact: false }).waitFor();
+  await page.getByRole('button', { name: 'Close', exact: true }).last().click();
   await settings();
   await provider('Anthropic · Claude').getByRole('button', { name: 'Disconnect', exact: true }).click();
   await waitCount(1);

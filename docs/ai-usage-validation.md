@@ -29,6 +29,7 @@ The first rebuild failed because the running prototype held package files open. 
 - Weekly is the outer arc, session is the inner arc. White ticks follow the same 270-degree scale and are withheld for stale, expired, or unknown timing. Expired readings never become a fabricated zero.
 - Both providers occupy a left column beside smaller system cards. The isolated 1024×600 test confirms both cards fit and precede system metrics horizontally. When both are disabled, the original metrics layout remains.
 - Press-and-hold opens the details modal; its per-window bars include elapsed ticks, exact reset times, source, reading age, and pace comparisons. Additional model-specific or Codex buckets remain available in details.
+- Final visual refinements use locally bundled Claude/Codex logos, internal labels matching their ring colors, and system-card hover/press feedback. The dashboard omits legends, reset rows, and updated-at text; stale state remains visible. Reset countdowns, exact resets, and reading time are available in details. Asset provenance is recorded in `src/assets/providers/ATTRIBUTION.md`.
 
 ## Phase 4: regression and delivery
 

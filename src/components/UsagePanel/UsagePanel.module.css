@@ -3,16 +3,19 @@
 .card { --usage-color: var(--color-accent-cyan); position: relative; background: var(--color-bg-secondary); border-radius: var(--radius-xl); padding: 8px 12px; min-width: 0; }
 .claude { --usage-color: var(--color-accent-purple); }
 .codex { --usage-color: var(--color-accent-cyan); }
-.card { cursor: pointer; touch-action: manipulation; user-select: none; }
+.card { cursor: pointer; touch-action: manipulation; user-select: none; padding-bottom: 24px; transition: box-shadow 300ms ease, transform 150ms ease; }
+.card:hover { box-shadow: 0 0 20px rgba(0, 217, 255, .2); transform: translateY(-2px); }
+.card:active { transform: scale(.98); box-shadow: 0 0 30px var(--usage-color); }
 .card:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 .pressHint { position: absolute; bottom: 5px; right: 8px; color: var(--color-text-muted); opacity: .5; font-size: 9px; pointer-events: none; }
-.header, .cardFooter { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
 .header h3 { margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-.header { min-height: 28px; }
+.header { min-height: 36px; justify-content: center; }
+.providerLogo { display: block; width: 28px; height: 28px; object-fit: contain; }
 .dial { position: relative; width: 100%; max-width: 136px; margin: 0 auto -10px; }
 .dial svg { display: block; width: 100%; overflow: visible; }
-.outerRing, .outerLabel { color: var(--usage-color); }
-.innerRing, .innerLabel { color: var(--color-text-secondary); }
+.outerRing { color: var(--usage-color); }
+.innerRing { color: var(--color-text-secondary); }
 .ringTrack { stroke: var(--color-bg-elevated); }
 .ringFill { stroke: currentColor; transition: stroke-dasharray 250ms ease; }
 .exhausted { stroke: var(--color-error); }
@@ -20,14 +23,10 @@
 .paceMarker { stroke: var(--color-text-primary); stroke-width: 2; }
 .dialValue { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; pointer-events: none; }
 .sessionValue, .weeklyValue { display: flex; flex-direction: column; align-items: center; font-variant-numeric: tabular-nums; line-height: 1; }
-.sessionValue { font-size: 23px; font-weight: 700; }
-.weeklyValue { font-size: 16px; color: var(--color-text-secondary); }
+.sessionValue { font-size: 23px; font-weight: 700; color: var(--color-text-secondary); }
+.weeklyValue { font-size: 16px; color: var(--usage-color); }
 .dialValue small { font-size: 9px; margin-top: 3px; text-transform: uppercase; font-weight: 400; max-width: 70px; text-align: center; }
 .windows { display: grid; gap: 5px; }
-.windowFooter { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 5px; font-size: 11px; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
-.outerLabel::before, .innerLabel::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: currentColor; margin-right: 4px; }
-.abovePace { color: var(--color-warning); }
-.cardFooter { margin-top: 9px; margin-bottom: 10px; min-height: 14px; font-size: 9px; color: var(--color-text-secondary); }
 .refreshButton { color: var(--color-text-secondary); background: transparent; border: none; border-radius: 6px; min-height: 44px; min-width: 44px; padding: 4px; font: inherit; font-size: 11px; cursor: pointer; touch-action: manipulation; }
 .refreshButton:hover { color: var(--color-text-primary); background: var(--color-hover); }
 .refreshButton:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
@@ -43,4 +42,4 @@
 .detailFill { height: 100%; background: var(--usage-color); border-radius: 4px; }
 .staleFill { opacity: .45; }
 .detailTick { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--color-text-primary); transform: translateX(-50%); }
-@media (prefers-reduced-motion: reduce) { .ringFill { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .ringFill, .card { transition: none; } }

@@ -6,7 +6,7 @@ Claude opens an isolated sign-in window. Complete sign-in yourself, then use **C
 
 Codex uses an installed Codex executable and opens the managed OpenAI sign-in in your browser. If discovery fails, use **Choose executable** to select `codex.exe`. SuperPanel uses its own Codex home and login; a coding session does not need to be running. A ChatGPT account is required; an API key does not expose subscription limits.
 
-The cards appear to the left of the system metrics in split and metrics-only views. Weekly usage fills the outer arc, session usage fills the inner arc. Each white tick shows how much of that window's time has elapsed, using the reset time and known duration. It is an even-use budgeting reference, not a forecast. The percentages show allowance consumed, not token counts.
+The cards appear to the left of the system metrics in split and metrics-only views. Weekly usage fills the outer arc, session usage fills the inner arc; internal text matches the arc colors. Each white tick shows how much of that window's time has elapsed, using the reset time and known duration. It is an even-use budgeting reference, not a forecast. The percentages show allowance consumed, not token counts. Reset countdowns and reading times appear only in the expanded details.
 
 Press and hold a card for 800ms to open details, or focus it and press Enter/Space. Details show every reported window as a bar, including any additional model-specific limits, exact resets, source, and usage compared with pace. Refresh is available there and in Settings.
 

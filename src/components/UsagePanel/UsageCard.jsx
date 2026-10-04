@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { DetailedMetricModal } from '../MetricsPanel/DetailedMetricModal';
 import { useLongPress } from '../../hooks/useLongPress';
-import { windowDisplay, formatCountdown, formatObservation, usageDialPoint, USAGE_STALE_MS } from '../../utils/usage';
+import { windowDisplay, formatCountdown, usageDialPoint, USAGE_STALE_MS } from '../../utils/usage';
 import styles from './UsagePanel.module.css';
+import claudeLogo from '../../assets/providers/claude.png';
+import codexLogo from '../../assets/providers/codex.svg';
 
 const titles = { claude: 'Anthropic · Claude', codex: 'OpenAI · Codex' };
 const exactTime = value => Number.isFinite(value) ? new Date(value).toLocaleString() : 'Unavailable';
@@ -25,7 +27,8 @@ export function UsageCard({ provider, state, now, onRefresh }) {
         onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setExpanded(true); } }}
         aria-label={`${title} usage. Press and hold for details.`} data-usage-provider={provider}>
         <div className={styles.header}>
-          <h3>{provider === 'claude' ? 'Claude' : 'Codex'}</h3>
+          <h3><img className={styles.providerLogo} src={provider === 'claude' ? claudeLogo : codexLogo}
+            alt={provider === 'claude' ? 'Claude' : 'Codex'} draggable="false" /></h3>
         </div>
         <div className={styles.dial}>
           <svg viewBox="0 0 160 160" aria-label={`${title} concentric usage dials`}>
@@ -55,25 +58,12 @@ export function UsageCard({ provider, state, now, onRefresh }) {
           </div>
         </div>
         <div className={styles.windows}>
-          {dials.map((window, index) => {
-            const display = windowDisplay(window, snapshot, now);
-            return (
-              <div className={styles.window} key={window.id} data-usage-window={window.id}>
-                <div className={styles.windowFooter}>
-                  <span className={index ? styles.innerLabel : styles.outerLabel} title={display.paceLabel || 'Pace unavailable'}>{dialLabel(window)}</span>
-                  <span>{formatCountdown(window.resetsAt, now).replace('Resets in ', '')}</span>
-                </div>
-              </div>
-            );
-          })}
           {(waiting || !snapshot.windows.length) && <p className={styles.empty}>
             {reconnect ? 'Reconnect in Settings to resume usage updates.' : waiting ? 'Waiting for usage data…' : 'No usage windows reported for this account.'}
           </p>}
         </div>
         {state.error && <p className={styles.error} role="status">{state.error.message}</p>}
-        <div className={styles.cardFooter}>
-          <span className={stale ? styles.abovePace : ''}>{stale ? 'Stale · ' : ''}{formatObservation(snapshot?.observedAt, now)}</span>
-        </div>
+        {stale && <p className={styles.error}>Stale reading</p>}
         <span className={styles.pressHint}>Press &amp; hold</span>
       </article>
       <DetailedMetricModal isOpen={expanded} onClose={() => setExpanded(false)} title={`${title} usage details`}>
