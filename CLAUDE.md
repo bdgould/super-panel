@@ -63,7 +63,7 @@ window.electron.{category}.{method}()
 ```
 
 **Categories:**
-- `metrics.*` - System information (CPU, RAM, network, disk, temperature)
+- `metrics.*` - System information (CPU, GPU, RAM, network, disk, temperature)
 - `actions.*` - Button actions (launch app, run command, open URL, system control)
 - `config.*` - Configuration persistence (get/save/delete buttons, settings)
 - `window.*` - Window controls (minimize, maximize, fullscreen, close)
@@ -89,10 +89,11 @@ ipcMain.handle('category:method', async (event, ...args) => {
 - **ConfigContext** - Button configurations and settings
   - Loads from electron-store on mount
   - Provides `saveButton()`, `deleteButton()`, `executeAction()`
-  - Persists to `%APPDATA%\super-panel-config\config.json`
+  - Persists to `%APPDATA%\super-panel\super-panel-config.json`
 
 - **MetricsContext** - System metrics
-  - Polls every 2 seconds via IPC
+  - Polls via IPC every `settings.metricsRefreshInterval` ms (default 6000, set in the Settings modal)
+  - Pauses polling while the window is hidden (minimized) and refreshes immediately when shown
   - Provides individual and bulk fetch methods
   - Auto-cleanup on unmount
 
@@ -108,7 +109,7 @@ App
     ├── HoneycombGrid
     │   └── HoneycombButton (12 buttons, 4x3 grid)
     ├── MetricsPanel (responsive grid: 2 cols default, 3 cols full-screen)
-    │   ├── CompactMetricCard (5 cards: CPU, RAM, Network, Disk, Temp)
+    │   ├── CompactMetricCard (6 cards: CPU, GPU, RAM, Network, Disk, Temp; GPU hidden without NVIDIA)
     │   └── DetailedMetricModal (expands on long-press)
     └── ButtonConfigModal
 ```
@@ -180,7 +181,7 @@ Configured via `ButtonConfigModal`, executed via `ConfigContext.executeAction()`
 
 ## Configuration Storage
 
-**Location:** `%APPDATA%\super-panel-config\config.json`
+**Location:** `%APPDATA%\super-panel\super-panel-config.json` (uploaded icons go in `%APPDATA%\super-panel\icons\`)
 
 **Structure:**
 ```json
@@ -197,10 +198,14 @@ Configured via `ButtonConfigModal`, executed via `ConfigContext.executeAction()`
   },
   "settings": {
     "theme": "rgb-dark",
-    "metricsRefreshInterval": 2000
+    "metricsRefreshInterval": 6000,
+    "refreshIntervalMigrated": true,
+    "gridDimensions": { "rows": 3, "columns": 4 }
   }
 }
 ```
+
+`metricsRefreshInterval` must be an integer from 1000 to 300000 (validated in `config:save-settings`). The default lives in two places that must stay in sync: `DEFAULT_REFRESH_INTERVAL` in `electron/ipc/config.js` and `METRICS_REFRESH_INTERVAL` in `src/utils/constants.js`. The main process cannot import from `src/` because the packaged app ships only `dist/` and `electron/`. On startup, a stored value of exactly 2000 (the old fixed default) is migrated once to the new default, and `refreshIntervalMigrated` records that.
 
 **Default buttons:** 12 slots (button-0 through button-11) in 4x3 honeycomb grid.
 
@@ -232,6 +237,21 @@ Navigation:
 - `package.json` build section - electron-builder config for Windows installer
 
 ## Common Modifications
+
+### GPU Metrics
+
+- `electron/ipc/gpu.js` calls `nvidia-smi` directly (NVIDIA only). systeminformation's `graphics()` is not used for this because its nvidia-smi lookup fails on Windows.
+- Looks in System32, then `Program Files\NVIDIA Corporation\NVSMI`, then the newest copy in the DriverStore. The path is cached.
+- When nvidia-smi is missing or fails, the handler returns `{ available: false, reason }` and waits 60s before retrying.
+- The Temperature card shows CPU temperature when a sensor exists, otherwise the first GPU's temperature.
+
+### Network Metrics
+
+- `electron/ipc/network.js` reads per-adapter byte counters from the `MSFT_NetAdapter` and `MSFT_NetAdapterStatisticsSettingData` CIM classes (one PowerShell call per poll, about 300ms), keyed by connection name such as "Wi-Fi".
+- Do not switch back to systeminformation's `networkStats()` on Windows. It skips adapters whose `Win32_NetworkAdapter.NetEnabled` is blank, which some Wi-Fi drivers leave empty, so the active adapter reports 0 bytes forever.
+- Rates are computed from the change in counters between polls. The first poll reads 0, and calls less than 500ms apart reuse the previous rate.
+- Card totals count connected physical adapters only, because VPN and virtual adapter traffic also crosses a physical adapter. If none are connected, all connected adapters count.
+- IP and MAC addresses come from `os.networkInterfaces()`, so no extra process is spawned.
 
 ### Adding a New Metric
 

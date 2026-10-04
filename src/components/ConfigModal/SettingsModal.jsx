@@ -1,19 +1,35 @@
 import { useState, useEffect } from 'react';
 import { useConfig } from '../../contexts/ConfigContext';
-import { DEFAULT_GRID_DIMENSIONS } from '../../utils/constants';
+import {
+  DEFAULT_GRID_DIMENSIONS,
+  METRICS_REFRESH_INTERVAL,
+  METRICS_REFRESH_OPTIONS,
+} from '../../utils/constants';
 import styles from './SettingsModal.module.css';
 
 export function SettingsModal({ isOpen, onClose }) {
   const { settings, saveSettings } = useConfig();
   const [rows, setRows] = useState(DEFAULT_GRID_DIMENSIONS.rows);
   const [columns, setColumns] = useState(DEFAULT_GRID_DIMENSIONS.columns);
+  const [refreshInterval, setRefreshInterval] = useState(METRICS_REFRESH_INTERVAL);
   const [isSaving, setIsSaving] = useState(false);
+
+  const savedRefreshInterval = settings?.metricsRefreshInterval || METRICS_REFRESH_INTERVAL;
+
+  // Include a stored value that isn't one of the presets so it still displays
+  const refreshOptions = METRICS_REFRESH_OPTIONS.some(o => o.value === savedRefreshInterval)
+    ? METRICS_REFRESH_OPTIONS
+    : [
+        ...METRICS_REFRESH_OPTIONS,
+        { value: savedRefreshInterval, label: `Every ${savedRefreshInterval / 1000} seconds` },
+      ].sort((a, b) => a.value - b.value);
 
   // Load current settings when modal opens
   useEffect(() => {
     if (isOpen) {
       setRows(settings?.gridDimensions?.rows || DEFAULT_GRID_DIMENSIONS.rows);
       setColumns(settings?.gridDimensions?.columns || DEFAULT_GRID_DIMENSIONS.columns);
+      setRefreshInterval(settings?.metricsRefreshInterval || METRICS_REFRESH_INTERVAL);
     }
   }, [isOpen, settings]);
 
@@ -26,6 +42,7 @@ export function SettingsModal({ isOpen, onClose }) {
           rows: parseInt(rows, 10),
           columns: parseInt(columns, 10),
         },
+        metricsRefreshInterval: parseInt(refreshInterval, 10),
       });
 
       if (result.success) {
@@ -44,6 +61,7 @@ export function SettingsModal({ isOpen, onClose }) {
     // Reset to current settings
     setRows(settings?.gridDimensions?.rows || DEFAULT_GRID_DIMENSIONS.rows);
     setColumns(settings?.gridDimensions?.columns || DEFAULT_GRID_DIMENSIONS.columns);
+    setRefreshInterval(settings?.metricsRefreshInterval || METRICS_REFRESH_INTERVAL);
     onClose();
   };
 
@@ -55,7 +73,7 @@ export function SettingsModal({ isOpen, onClose }) {
     <div className={styles.modalOverlay} onClick={handleCancel}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Grid Settings</h2>
+          <h2 className={styles.modalTitle}>Settings</h2>
           <button
             className={styles.closeButton}
             onClick={handleCancel}
@@ -66,34 +84,36 @@ export function SettingsModal({ isOpen, onClose }) {
         </div>
 
         <div className={styles.modalBody}>
-          <div className={styles.formGroup}>
-            <label htmlFor="rows" className={styles.label}>
-              Rows
-            </label>
-            <input
-              id="rows"
-              type="number"
-              min="1"
-              max="10"
-              value={rows}
-              onChange={(e) => setRows(e.target.value)}
-              className={styles.input}
-            />
-          </div>
+          <div className={styles.fieldRow}>
+            <div className={styles.formGroup}>
+              <label htmlFor="rows" className={styles.label}>
+                Rows
+              </label>
+              <input
+                id="rows"
+                type="number"
+                min="1"
+                max="10"
+                value={rows}
+                onChange={(e) => setRows(e.target.value)}
+                className={styles.input}
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="columns" className={styles.label}>
-              Columns
-            </label>
-            <input
-              id="columns"
-              type="number"
-              min="1"
-              max="10"
-              value={columns}
-              onChange={(e) => setColumns(e.target.value)}
-              className={styles.input}
-            />
+            <div className={styles.formGroup}>
+              <label htmlFor="columns" className={styles.label}>
+                Columns
+              </label>
+              <input
+                id="columns"
+                type="number"
+                min="1"
+                max="10"
+                value={columns}
+                onChange={(e) => setColumns(e.target.value)}
+                className={styles.input}
+              />
+            </div>
           </div>
 
           <div className={styles.infoBox}>
@@ -102,6 +122,27 @@ export function SettingsModal({ isOpen, onClose }) {
             </p>
             <p className={styles.warningText}>
               Note: Changing dimensions will preserve existing button configurations. New slots will be empty.
+            </p>
+          </div>
+
+          <div className={`${styles.formGroup} ${styles.sectionGap}`}>
+            <label htmlFor="refreshInterval" className={styles.label}>
+              Metrics Refresh
+            </label>
+            <select
+              id="refreshInterval"
+              value={refreshInterval}
+              onChange={(e) => setRefreshInterval(parseInt(e.target.value, 10))}
+              className={styles.input}
+            >
+              {refreshOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p className={styles.helpText}>
+              Slower means fewer system queries. Paused while minimized.
             </p>
           </div>
         </div>

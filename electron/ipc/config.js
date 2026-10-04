@@ -3,16 +3,32 @@ import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
 
+// Keep in sync with METRICS_REFRESH_INTERVAL in src/utils/constants.js
+// (the packaged app does not ship src/, so it can't be imported here).
+const DEFAULT_REFRESH_INTERVAL = 6000;
+const MIN_REFRESH_INTERVAL = 1000;
+const MAX_REFRESH_INTERVAL = 300000;
+
 const store = new Store({
   name: 'super-panel-config',
   defaults: {
     buttons: {},
     settings: {
       theme: 'rgb-dark',
-      metricsRefreshInterval: 2000,
+      metricsRefreshInterval: DEFAULT_REFRESH_INTERVAL,
     },
   },
 });
+
+// Before the refresh interval was configurable, electron-store wrote the old
+// fixed 2000ms default into every config file. Move those to the new default
+// once. The flag keeps a later, deliberate choice of 2s from being undone.
+if (!store.get('settings.refreshIntervalMigrated')) {
+  if (store.get('settings.metricsRefreshInterval') === 2000) {
+    store.set('settings.metricsRefreshInterval', DEFAULT_REFRESH_INTERVAL);
+  }
+  store.set('settings.refreshIntervalMigrated', true);
+}
 
 // Get the icons directory path
 const getIconsDir = () => {
@@ -109,6 +125,15 @@ export function setupConfigHandlers(ipcMain) {
     try {
       if (!settings || typeof settings !== 'object') {
         throw new Error('Invalid settings object');
+      }
+
+      if ('metricsRefreshInterval' in settings) {
+        const interval = settings.metricsRefreshInterval;
+        if (!Number.isInteger(interval) || interval < MIN_REFRESH_INTERVAL || interval > MAX_REFRESH_INTERVAL) {
+          throw new Error(
+            `Refresh interval must be a whole number of ms between ${MIN_REFRESH_INTERVAL} and ${MAX_REFRESH_INTERVAL}`
+          );
+        }
       }
 
       const currentSettings = store.get('settings', {});

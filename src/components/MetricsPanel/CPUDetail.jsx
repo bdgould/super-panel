@@ -1,6 +1,8 @@
 import styles from './MetricsPanel.module.css';
 
-export function CPUDetail({ cpu }) {
+export function CPUDetail({ cpu, temperature }) {
+  const cpuTemp = temperature?.main;
+
   const getUsageColor = (usage) => {
     if (usage < 50) return 'var(--color-success)';
     if (usage < 80) return 'var(--color-warning)';
@@ -20,10 +22,10 @@ export function CPUDetail({ cpu }) {
             {cpu.usage}%
           </span>
         </div>
-        {cpu.temperature && (
+        {cpuTemp != null && (
           <div className={styles.detailStat}>
             <span className={styles.detailStatLabel}>Temperature</span>
-            <span className={styles.detailStatValue}>{cpu.temperature}°C</span>
+            <span className={styles.detailStatValue}>{cpuTemp}°C</span>
           </div>
         )}
       </div>

@@ -12,8 +12,18 @@ export const LONG_PRESS_DURATION = 800;
 export const SWIPE_THRESHOLD = 50; // Minimum distance for swipe detection (px)
 export const SWIPE_VELOCITY_THRESHOLD = 0.3; // Minimum velocity for swipe (px/ms)
 
-// Metrics refresh interval
-export const METRICS_REFRESH_INTERVAL = 2000; // ms
+// Metrics refresh interval (default; overridden by settings.metricsRefreshInterval).
+// Keep in sync with DEFAULT_REFRESH_INTERVAL in electron/ipc/config.js.
+export const METRICS_REFRESH_INTERVAL = 6000; // ms
+
+// Choices offered in the Settings modal
+export const METRICS_REFRESH_OPTIONS = [
+  { value: 2000, label: 'Every 2 seconds' },
+  { value: 4000, label: 'Every 4 seconds' },
+  { value: 6000, label: 'Every 6 seconds' },
+  { value: 10000, label: 'Every 10 seconds' },
+  { value: 30000, label: 'Every 30 seconds' },
+];
 
 // Button action types
 export const ACTION_TYPES = {

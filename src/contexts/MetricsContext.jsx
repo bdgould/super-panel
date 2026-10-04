@@ -1,26 +1,36 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { METRICS_REFRESH_INTERVAL } from '../utils/constants';
+import { useConfig } from './ConfigContext';
 
 const MetricsContext = createContext();
 
 export function MetricsProvider({ children }) {
-  const [cpu, setCpu] = useState({ usage: 0, cores: [], temperature: null });
+  const { settings } = useConfig();
+  const configuredInterval = settings?.metricsRefreshInterval;
+  const refreshInterval =
+    Number.isInteger(configuredInterval) && configuredInterval >= 1000
+      ? configuredInterval
+      : METRICS_REFRESH_INTERVAL;
+
+  const [cpu, setCpu] = useState({ usage: 0, cores: [] });
   const [memory, setMemory] = useState({ total: 0, used: 0, free: 0, usagePercent: 0 });
   const [network, setNetwork] = useState({ interface: 'N/A', rx: 0, tx: 0, interfaces: [] });
   const [disk, setDisk] = useState([]);
   const [temperature, setTemperature] = useState({ main: null, cores: [], max: null });
+  const [gpu, setGpu] = useState({ available: false, reason: null, gpus: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Fetch all metrics
   const fetchMetrics = useCallback(async () => {
     try {
-      const [cpuData, memData, netData, diskData, tempData] = await Promise.all([
+      const [cpuData, memData, netData, diskData, tempData, gpuData] = await Promise.all([
         window.electron.metrics.getCPU(),
         window.electron.metrics.getMemory(),
         window.electron.metrics.getNetwork(),
         window.electron.metrics.getDisk(),
         window.electron.metrics.getTemperature(),
+        window.electron.metrics.getGPU(),
       ]);
 
       setCpu(cpuData);
@@ -28,6 +38,7 @@ export function MetricsProvider({ children }) {
       setNetwork(netData);
       setDisk(diskData);
       setTemperature(tempData);
+      setGpu(gpuData);
       setError(null);
     } catch (err) {
       console.error('Error fetching metrics:', err);
@@ -87,17 +98,50 @@ export function MetricsProvider({ children }) {
     }
   }, []);
 
+  // Fetch GPU metrics only
+  const fetchGPU = useCallback(async () => {
+    try {
+      const gpuData = await window.electron.metrics.getGPU();
+      setGpu(gpuData);
+    } catch (err) {
+      console.error('Error fetching GPU metrics:', err);
+    }
+  }, []);
+
   // Initial fetch
   useEffect(() => {
     fetchMetrics();
   }, [fetchMetrics]);
 
-  // Set up polling for metrics
+  // Poll at the configured interval. Pause while the window is hidden
+  // (minimized or fully covered) and refresh as soon as it is visible again.
   useEffect(() => {
-    const interval = setInterval(fetchMetrics, METRICS_REFRESH_INTERVAL);
+    let timer = null;
 
-    return () => clearInterval(interval);
-  }, [fetchMetrics]);
+    const start = () => {
+      if (!timer) timer = setInterval(fetchMetrics, refreshInterval);
+    };
+    const stop = () => {
+      clearInterval(timer);
+      timer = null;
+    };
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        fetchMetrics();
+        start();
+      }
+    };
+
+    if (!document.hidden) start();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchMetrics, refreshInterval]);
 
   const value = {
     cpu,
@@ -105,6 +149,7 @@ export function MetricsProvider({ children }) {
     network,
     disk,
     temperature,
+    gpu,
     loading,
     error,
     refresh: fetchMetrics,
@@ -113,6 +158,7 @@ export function MetricsProvider({ children }) {
     fetchNetwork,
     fetchDisk,
     fetchTemperature,
+    fetchGPU,
   };
 
   return (

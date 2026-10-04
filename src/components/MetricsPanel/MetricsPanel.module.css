@@ -50,6 +50,7 @@
 .compactCard:nth-child(3) { transition-delay: 60ms; }
 .compactCard:nth-child(4) { transition-delay: 90ms; }
 .compactCard:nth-child(5) { transition-delay: 120ms; }
+.compactCard:nth-child(6) { transition-delay: 150ms; }
 
 .compactCard:hover {
   border-color: var(--card-color);
@@ -367,10 +368,31 @@
 }
 
 .interfaceDetailName {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
   font-size: 14px;
   font-weight: 700;
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-sm);
+}
+
+.interfaceDetailDescription {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-top: calc(-1 * var(--spacing-xs));
+  margin-bottom: var(--spacing-sm);
+}
+
+.interfaceTag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--border-color-primary);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--spacing-xs);
 }
 
 .interfaceDetailInfo {
@@ -496,6 +518,12 @@
 
 .tempGuideLabel {
   flex: 1;
+}
+
+/* Inline note inside a detail modal */
+.detailNote {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
 }
 
 /* No Data */

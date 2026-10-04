@@ -7,11 +7,19 @@ import { RAMDetail } from './RAMDetail';
 import { NetworkDetail } from './NetworkDetail';
 import { DiskDetail } from './DiskDetail';
 import { TempDetail } from './TempDetail';
+import { GPUDetail } from './GPUDetail';
 import { formatSpeed } from '../../utils/constants';
 import styles from './MetricsPanel.module.css';
 
+const getTempColor = (temp) => {
+  if (temp == null) return 'var(--color-text-secondary)';
+  if (temp < 60) return 'var(--color-success)';
+  if (temp < 80) return 'var(--color-warning)';
+  return 'var(--color-error)';
+};
+
 export function MetricsPanel({ isFullScreen = false }) {
-  const { cpu, memory, network, disk, temperature } = useMetrics();
+  const { cpu, memory, network, disk, temperature, gpu } = useMetrics();
   const [expandedMetric, setExpandedMetric] = useState(null);
 
   const openDetail = (metric) => {
@@ -40,6 +48,23 @@ export function MetricsPanel({ isFullScreen = false }) {
     return disk[0].usagePercent;
   };
 
+  // Card shows the first GPU; the detail modal lists all of them
+  const primaryGpu = gpu.available ? gpu.gpus[0] : null;
+
+  // Many Windows machines expose no CPU temperature sensor, so fall back to
+  // the GPU's temperature rather than showing an empty card.
+  const getTemperatureDisplay = () => {
+    if (temperature.main != null) {
+      return { title: 'CPU Temp', value: temperature.main };
+    }
+    if (primaryGpu?.temperature != null) {
+      return { title: 'GPU Temp', value: primaryGpu.temperature };
+    }
+    return { title: 'Temperature', value: null };
+  };
+
+  const temperatureDisplay = getTemperatureDisplay();
+
   return (
     <div className={styles.metricsPanel}>
       <div className={`${styles.compactGrid} ${isFullScreen ? styles.threeColumn : ''}`}>
@@ -51,6 +76,17 @@ export function MetricsPanel({ isFullScreen = false }) {
           icon="🔥"
           onExpand={() => openDetail('cpu')}
         />
+
+        {/* GPU Card (NVIDIA only; hidden when nvidia-smi is unavailable) */}
+        {primaryGpu && (
+          <CompactMetricCard
+            title="GPU"
+            value={primaryGpu.utilization ?? '—'}
+            unit="%"
+            icon="🎮"
+            onExpand={() => openDetail('gpu')}
+          />
+        )}
 
         {/* RAM Card */}
         <CompactMetricCard
@@ -82,19 +118,11 @@ export function MetricsPanel({ isFullScreen = false }) {
 
         {/* Temperature Card */}
         <CompactMetricCard
-          title="Temperature"
-          value={temperature.main || '—'}
+          title={temperatureDisplay.title}
+          value={temperatureDisplay.value ?? '—'}
           unit="°C"
           icon="🌡️"
-          color={
-            temperature.main
-              ? temperature.main < 60
-                ? 'var(--color-success)'
-                : temperature.main < 80
-                ? 'var(--color-warning)'
-                : 'var(--color-error)'
-              : 'var(--color-text-secondary)'
-          }
+          color={getTempColor(temperatureDisplay.value)}
           onExpand={() => openDetail('temperature')}
         />
       </div>
@@ -105,7 +133,15 @@ export function MetricsPanel({ isFullScreen = false }) {
         onClose={closeDetail}
         title="CPU Details"
       >
-        <CPUDetail cpu={cpu} />
+        <CPUDetail cpu={cpu} temperature={temperature} />
+      </DetailedMetricModal>
+
+      <DetailedMetricModal
+        isOpen={expandedMetric === 'gpu'}
+        onClose={closeDetail}
+        title="GPU Details"
+      >
+        <GPUDetail gpu={gpu} />
       </DetailedMetricModal>
 
       <DetailedMetricModal
@@ -137,7 +173,7 @@ export function MetricsPanel({ isFullScreen = false }) {
         onClose={closeDetail}
         title="Temperature Details"
       >
-        <TempDetail temperature={temperature} />
+        <TempDetail temperature={temperature} gpu={gpu} />
       </DetailedMetricModal>
     </div>
   );

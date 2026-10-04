@@ -1,22 +1,24 @@
 import si from 'systeminformation';
+import { getGpuMetrics } from './gpu.js';
+import { getNetworkMetrics } from './network.js';
 
 export function setupMetricsHandlers(ipcMain) {
   // CPU metrics
   ipcMain.handle('metrics:cpu', async () => {
     try {
+      // CPU temperature comes from metrics:temperature, not here, so the
+      // thermal sensor is only queried once per poll.
       const cpuLoad = await si.currentLoad();
-      const cpuTemp = await si.cpuTemperature();
 
       return {
         usage: cpuLoad.currentLoad.toFixed(1),
         cores: cpuLoad.cpus.map(cpu => ({
           load: cpu.load.toFixed(1),
         })),
-        temperature: cpuTemp.main || null,
       };
     } catch (error) {
       console.error('Error fetching CPU metrics:', error);
-      return { usage: 0, cores: [], temperature: null };
+      return { usage: 0, cores: [] };
     }
   });
 
@@ -40,23 +42,7 @@ export function setupMetricsHandlers(ipcMain) {
   // Network metrics
   ipcMain.handle('metrics:network', async () => {
     try {
-      const networkStats = await si.networkStats();
-      const networkInterfaces = await si.networkInterfaces();
-
-      // Get the default/active interface
-      const activeInterface = networkStats[0] || {};
-
-      return {
-        interface: activeInterface.iface || 'N/A',
-        rx: activeInterface.rx_sec || 0, // bytes per second received
-        tx: activeInterface.tx_sec || 0, // bytes per second transmitted
-        interfaces: networkInterfaces.map(iface => ({
-          name: iface.iface,
-          ip4: iface.ip4,
-          ip6: iface.ip6,
-          mac: iface.mac,
-        })),
-      };
+      return await getNetworkMetrics();
     } catch (error) {
       console.error('Error fetching network metrics:', error);
       return { interface: 'N/A', rx: 0, tx: 0, interfaces: [] };
@@ -82,6 +68,9 @@ export function setupMetricsHandlers(ipcMain) {
       return [];
     }
   });
+
+  // GPU metrics (NVIDIA only, via nvidia-smi)
+  ipcMain.handle('metrics:gpu', () => getGpuMetrics());
 
   // Temperature metrics
   ipcMain.handle('metrics:temperature', async () => {

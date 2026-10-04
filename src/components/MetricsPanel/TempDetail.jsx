@@ -1,6 +1,6 @@
 import styles from './MetricsPanel.module.css';
 
-export function TempDetail({ temperature }) {
+export function TempDetail({ temperature, gpu }) {
   const getTempColor = (temp) => {
     if (!temp) return 'var(--color-text-secondary)';
     if (temp < 60) return 'var(--color-success)';
@@ -8,7 +8,11 @@ export function TempDetail({ temperature }) {
     return 'var(--color-error)';
   };
 
-  const hasData = temperature.main || temperature.cores.length > 0;
+  const hasCpuData = temperature.main != null || temperature.cores.length > 0;
+  const gpuTemps = gpu?.available
+    ? gpu.gpus.filter(item => item.temperature != null)
+    : [];
+  const hasData = hasCpuData || gpuTemps.length > 0;
 
   return (
     <div className={styles.detailContent}>
@@ -16,6 +20,29 @@ export function TempDetail({ temperature }) {
         <div className={styles.noData}>Temperature data not available</div>
       ) : (
         <>
+          {/* GPU Temperatures */}
+          {gpuTemps.length > 0 && (
+            <div className={styles.detailStats}>
+              {gpuTemps.map(item => (
+                <div key={item.index ?? item.name} className={styles.detailStat}>
+                  <span className={styles.detailStatLabel}>{item.name}</span>
+                  <span
+                    className={styles.detailStatValue}
+                    style={{ color: getTempColor(item.temperature) }}
+                  >
+                    {item.temperature}°C
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!hasCpuData && (
+            <div className={styles.detailNote}>
+              CPU temperature sensor not available on this system
+            </div>
+          )}
+
           {/* Overall Stats */}
           {temperature.main && (
             <div className={styles.detailStats}>

@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electron', {
     getNetwork: () => ipcRenderer.invoke('metrics:network'),
     getDisk: () => ipcRenderer.invoke('metrics:disk'),
     getTemperature: () => ipcRenderer.invoke('metrics:temperature'),
+    getGPU: () => ipcRenderer.invoke('metrics:gpu'),
   },
 
   // Button actions

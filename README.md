@@ -7,7 +7,7 @@ A touchscreen-optimized Electron dashboard for Windows with configurable buttons
 ## Features
 
 - **Honeycomb Button Grid**: Customizable buttons in a honeycomb layout with visual feedback
-- **System Metrics**: Real-time monitoring of CPU, RAM, network, disk, and temperature
+- **System Metrics**: Real-time monitoring of CPU, GPU (NVIDIA), RAM, network, disk, and temperature
 - **Touch-Optimized**: Designed for touchscreen displays with proper touch targets (44x44px minimum)
 - **Swipe Navigation**: Swipe left/right to switch between buttons and metrics views
 - **RGB Dark Theme**: Modern dark theme with RGB accent colors
@@ -138,8 +138,10 @@ super-panel/
 
 Button configurations and app settings are stored using `electron-store` in:
 ```
-%APPDATA%\super-panel-config\config.json
+%APPDATA%\super-panel\super-panel-config.json
 ```
+
+Metrics refresh every 6 seconds by default. Change this under **Settings → Metrics Refresh** (gear icon in the title bar). Polling pauses while the window is minimized.
 
 ## Touch Optimizations
 
@@ -159,7 +161,10 @@ Button configurations and app settings are stored using `electron-store` in:
 ## Troubleshooting
 
 ### Temperature data not available
-Some systems require administrator privileges to access temperature sensors. Run the app as administrator if temperature data is not showing.
+Many Windows systems expose no CPU temperature sensor. When that happens the Temperature card shows the NVIDIA GPU temperature instead. Some systems require administrator privileges to access temperature sensors, so running as administrator may help.
+
+### GPU card not showing
+The GPU card needs an NVIDIA GPU and driver, which provide `nvidia-smi`. AMD and Intel GPUs are not supported yet.
 
 ### Commands not executing
 Ensure PowerShell execution policy allows scripts:
