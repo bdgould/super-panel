@@ -39,6 +39,11 @@
   background-clip: text;
 }
 
+.appVersion {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
 /* Draggable Region */
 .dragRegion {
   flex: 1;
