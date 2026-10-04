@@ -1,14 +1,14 @@
 # SuperPanel
 
-A touchscreen-optimized Electron dashboard for Windows with configurable buttons and real-time system metrics.
+A touchscreen-optimized Electron dashboard for Windows with configurable buttons, real-time system metrics, and optional Claude and Codex usage tracking.
 
-![super-panel view](docs/screen.png)
+![SuperPanel split view with application buttons, Claude and Codex usage dials, and system metrics](docs/screen.jpg)
 
 ## Features
 
 - **Honeycomb Button Grid**: Customizable buttons in a honeycomb layout with visual feedback
 - **System Metrics**: Real-time monitoring of CPU, GPU (NVIDIA), RAM, network, disk, and temperature
-- **AI Usage Windows**: Opt-in Claude and Codex usage dials, reset countdowns, and pace indicators. [Setup and troubleshooting](docs/ai-usage.md)
+- **AI Usage Tracking**: Independent Claude and Codex cards with concentric session/weekly usage dials, elapsed-time pace ticks, and detailed usage bars and reset countdowns
 - **Touch-Optimized**: Designed for touchscreen displays with proper touch targets (44x44px minimum)
 - **Swipe Navigation**: Swipe left/right to switch between buttons and metrics views
 - **RGB Dark Theme**: Modern dark theme with RGB accent colors
@@ -106,6 +106,22 @@ Each release bumps the patch version by default. For a minor or major release, r
   - Middle dot: Split view (default)
   - Right dot: Metrics only
 
+### Claude and Codex Usage Cards
+
+In **Settings → AI usage**, connect Claude, Codex, or both. Enable **Show on dashboard** for each card you want, then **Save**. Cards stay hidden until configured and enabled; connecting an account is immediate, while Save/Cancel controls its dashboard visibility.
+
+The cards appear beside the system metrics in split and metrics-only views:
+
+- **Inner ring:** session usage. **Outer ring:** weekly usage. The percentages and labels inside match their ring colors.
+- **White ticks:** the elapsed share of each window, showing where consumption would sit at an even pace. These are budgeting references, not predictions.
+- **Press and hold (800ms):** open per-window usage bars, pace comparisons, reset countdowns, exact reset times, and the last reading time. Reset and update text stay in the expanded view to keep the cards compact.
+
+Usage shows the percentage of the subscription allowance consumed, rather than a token count. Claude reads your web account directly, so Claude Code can be closed. Codex uses an installed Codex runtime with a separate SuperPanel sign-in; no coding session needs to be running.
+
+Usage refreshes every three minutes while the app is visible, pauses while minimized or disabled, and marks stale readings. At a reset, SuperPanel waits for a new reading instead of guessing zero usage. Disabling retains the connection; Disconnect clears only SuperPanel's provider authentication.
+
+See [AI usage setup and troubleshooting](docs/ai-usage.md) for workspace selection, choosing a Codex executable, reconnecting, and credential storage.
+
 ### Keyboard Shortcuts
 
 - **F11**: Toggle fullscreen
@@ -117,20 +133,24 @@ Each release bumps the patch version by default. For a minor or major release, r
 super-panel/
 ├── electron/                 # Electron main process
 │   ├── main.js              # Main entry point
-│   ├── preload.js           # Preload script (security)
+│   ├── preload.cjs          # Preload script (security)
+│   ├── usage/               # Provider adapters, normalization, and polling
 │   └── ipc/                 # IPC handlers
 │       ├── metrics.js       # System metrics
 │       ├── actions.js       # Button actions
-│       └── config.js        # Configuration management
+│       ├── config.js        # Configuration management
+│       └── usage.js         # AI account and usage operations
 ├── src/                     # React application
 │   ├── components/          # React components
 │   │   ├── Dashboard/       # Main dashboard
 │   │   ├── HoneycombGrid/   # Button grid
 │   │   ├── MetricsPanel/    # System metrics
+│   │   ├── UsagePanel/      # Claude and Codex usage cards
 │   │   └── ConfigModal/     # Button configuration
 │   ├── contexts/            # React contexts
 │   │   ├── ConfigContext.jsx
-│   │   └── MetricsContext.jsx
+│   │   ├── MetricsContext.jsx
+│   │   └── UsageContext.jsx
 │   ├── hooks/               # Custom hooks
 │   │   ├── useSwipe.js
 │   │   └── useLongPress.js
@@ -180,6 +200,9 @@ Many Windows systems expose no CPU temperature sensor. When that happens the Tem
 
 ### GPU card not showing
 The GPU card needs an NVIDIA GPU and driver, which provide `nvidia-smi`. AMD and Intel GPUs are not supported yet.
+
+### AI usage card not showing or updating
+Check that the account is connected, **Show on dashboard** is enabled, and the settings were saved. Switch from buttons-only to split or metrics-only view. Use Reconnect if sign-in expired; temporary network failures retain the last reading. Codex requires an installed runtime and a ChatGPT account. See the [AI usage guide](docs/ai-usage.md) for provider-specific steps.
 
 ### Commands not executing
 Ensure PowerShell execution policy allows scripts:
