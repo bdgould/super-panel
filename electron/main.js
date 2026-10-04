@@ -50,6 +50,14 @@ function createWindow() {
 
 // App lifecycle
 app.whenReady().then(() => {
+  if (process.argv.includes('--usage-smoke')) {
+    import('./usage/smoke.js').then(({ runUsageSmoke }) => runUsageSmoke());
+    return;
+  }
+  if (process.argv.includes('--usage-prototype')) {
+    import('./usage/prototype.js').then(({ openUsagePrototype }) => openUsagePrototype());
+    return;
+  }
   createWindow();
 
   // Set up IPC handlers
