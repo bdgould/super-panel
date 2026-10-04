@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ClaudeProvider } from '../electron/usage/providers/claude.js';
+import { UsageError } from '../electron/usage/errors.js';
 
 function makeProvider(fetch) {
   const session = { fetch, clearStorageData: vi.fn(), cookies: { get: vi.fn() } };
@@ -12,6 +13,19 @@ const response = (status, data = {}, headers = {}) => ({ ok: status >= 200 && st
   headers: new Headers({ 'content-type': 'application/json', ...headers }), json: async () => data });
 
 describe('Claude account adapter', () => {
+  it('allows an explicit reconnect to replace an unreadable saved login', async () => {
+    const { provider, session } = makeProvider(vi.fn());
+    provider.restore = vi.fn().mockRejectedValue(new UsageError('authentication', 'Unreadable session'));
+    const loadURL = vi.fn();
+    provider.BrowserWindow = class {
+      constructor() { this.webContents = { on: vi.fn(), setWindowOpenHandler: vi.fn(), session: { setPermissionRequestHandler: vi.fn() } }; }
+      on() {}
+      loadURL = loadURL;
+    };
+    await provider.connect();
+    expect(session.clearStorageData).toHaveBeenCalledOnce();
+    expect(loadURL).toHaveBeenCalledWith('https://claude.ai/settings/usage');
+  });
   it('reads only the selected workspace and persists after a successful reading', async () => {
     const fetch = vi.fn().mockResolvedValueOnce(response(200, [{ uuid: 'personal', name: 'Personal' }, { uuid: 'team', name: 'Team' }]))
       .mockResolvedValueOnce(response(200, { five_hour: { utilization: 4, resets_at: '2026-10-04T21:00:00Z' } }));

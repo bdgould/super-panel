@@ -6,10 +6,10 @@ import { UsageService } from '../usage/service.js';
 import { publicError } from '../usage/errors.js';
 import { configEvents, getAppSettings, saveAppSettings, getUsageConnections, setUsageConnection } from './config.js';
 
-export function setupUsageHandlers(ipcMain, window) {
+export function setupUsageHandlers(ipcMain, window, options = {}) {
   const root = path.join(app.getPath('userData'), 'ai-usage');
   const connections = getUsageConnections();
-  const providers = {
+  const providers = options.providers || {
     claude: new ClaudeProvider({ session: session.fromPartition('superpanel-claude-usage'), BrowserWindow, safeStorage, directory: root }),
     codex: new CodexProvider({ directory: path.join(root, 'codex'), openExternal: url => shell.openExternal(url),
       executable: connections.codex?.executable || null }),

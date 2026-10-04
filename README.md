@@ -8,6 +8,7 @@ A touchscreen-optimized Electron dashboard for Windows with configurable buttons
 
 - **Honeycomb Button Grid**: Customizable buttons in a honeycomb layout with visual feedback
 - **System Metrics**: Real-time monitoring of CPU, GPU (NVIDIA), RAM, network, disk, and temperature
+- **AI Usage Windows**: Opt-in Claude and Codex usage dials, reset countdowns, and pace indicators. [Setup and troubleshooting](docs/ai-usage.md)
 - **Touch-Optimized**: Designed for touchscreen displays with proper touch targets (44x44px minimum)
 - **Swipe Navigation**: Swipe left/right to switch between buttons and metrics views
 - **RGB Dark Theme**: Modern dark theme with RGB accent colors

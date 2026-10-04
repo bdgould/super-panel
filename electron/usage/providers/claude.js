@@ -65,7 +65,13 @@ export class ClaudeProvider {
   }
 
   async connect(parent) {
-    await this.restore();
+    try { await this.restore(); }
+    catch (error) {
+      if (error.code !== 'authentication') throw error;
+      // An explicit reconnect must be able to replace an unreadable saved login.
+      await this.session.clearStorageData();
+      this.restored = true;
+    }
     if (this.loginWindow && !this.loginWindow.isDestroyed()) { this.loginWindow.focus(); return; }
     const window = new this.BrowserWindow({ width: 920, height: 760, parent,
       title: 'Connect Claude — SuperPanel', autoHideMenuBar: true,

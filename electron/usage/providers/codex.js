@@ -70,6 +70,7 @@ export class CodexProvider {
     const rpc = new CodexRpc(child);
     this.rpc = rpc;
     rpc.on('notification', message => {
+      if (message.method === 'account/login/completed') this.loginId = null;
       if (message.method === 'account/login/completed' || message.method === 'account/rateLimits/updated') this.onUpdate(message.method);
     });
     try {
@@ -104,11 +105,12 @@ export class CodexProvider {
     return normalizeCodex(payload, account);
   }
   async disconnect() {
-    const rpc = await this.start();
-    if (this.loginId) await rpc.request('account/login/cancel', { loginId: this.loginId }).catch(() => {});
-    await rpc.request('account/logout');
-    this.loginId = null;
-    this.dispose();
+    try {
+      const rpc = await this.start();
+      if (this.loginId) await rpc.request('account/login/cancel', { loginId: this.loginId }).catch(() => {});
+      await rpc.request('account/logout');
+      this.loginId = null;
+    } finally { this.dispose(); }
   }
   dispose() { this.generation++; this.rpc?.dispose(); this.rpc = null; this.starting = null; }
 }
