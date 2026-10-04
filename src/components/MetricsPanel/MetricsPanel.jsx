@@ -109,6 +109,7 @@ export function MetricsPanel({ isFullScreen = false }) {
         {/* Network Card */}
         <CompactMetricCard
           title="Network"
+          showProgress={false}
           value={networkDisplay.value}
           unit={networkDisplay.unit}
           icon="🌐"
