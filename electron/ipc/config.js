@@ -2,12 +2,7 @@ import Store from 'electron-store';
 import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
-
-// Keep in sync with METRICS_REFRESH_INTERVAL in src/utils/constants.js
-// (the packaged app does not ship src/, so it can't be imported here).
-const DEFAULT_REFRESH_INTERVAL = 6000;
-const MIN_REFRESH_INTERVAL = 1000;
-const MAX_REFRESH_INTERVAL = 300000;
+import { DEFAULT_REFRESH_INTERVAL, validateSettings } from '../utils/settings.js';
 
 const store = new Store({
   name: 'super-panel-config',
@@ -123,18 +118,7 @@ export function setupConfigHandlers(ipcMain) {
   // Save application settings
   ipcMain.handle('config:save-settings', (event, settings) => {
     try {
-      if (!settings || typeof settings !== 'object') {
-        throw new Error('Invalid settings object');
-      }
-
-      if ('metricsRefreshInterval' in settings) {
-        const interval = settings.metricsRefreshInterval;
-        if (!Number.isInteger(interval) || interval < MIN_REFRESH_INTERVAL || interval > MAX_REFRESH_INTERVAL) {
-          throw new Error(
-            `Refresh interval must be a whole number of ms between ${MIN_REFRESH_INTERVAL} and ${MAX_REFRESH_INTERVAL}`
-          );
-        }
-      }
+      validateSettings(settings);
 
       const currentSettings = store.get('settings', {});
       const updatedSettings = {

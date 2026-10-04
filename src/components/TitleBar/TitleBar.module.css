@@ -47,6 +47,33 @@
   cursor: move;
 }
 
+/* Update Button */
+.updateButton {
+  height: 32px;
+  min-width: 44px;
+  margin-right: var(--spacing-sm);
+  padding: 0 var(--spacing-md);
+  background: rgba(0, 217, 255, 0.12);
+  border: 1px solid var(--color-accent-cyan);
+  border-radius: 6px;
+  color: var(--color-accent-cyan);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  touch-action: manipulation;
+  -webkit-app-region: no-drag;
+}
+
+.updateButton:hover {
+  background: rgba(0, 217, 255, 0.2);
+}
+
+.updateButton:active {
+  transform: scale(0.95);
+}
+
 /* Settings Button */
 .settingsButton {
   width: 46px;

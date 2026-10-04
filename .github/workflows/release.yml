@@ -1,0 +1,75 @@
+name: Release
+
+# Every merge to main ships a release. Installed copies of the app pick it up
+# through electron-updater, which reads latest.yml from the newest GitHub
+# release. See scripts/next-version.mjs for how the version is chosen.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One release at a time, and never cancel one halfway through publishing
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Build and publish
+    needs: test
+    runs-on: windows-latest
+    permissions:
+      contents: write # create the tag and release
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # next-version.mjs needs the existing tags
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Choose version
+        id: version
+        run: node scripts/next-version.mjs
+
+      # Only the build sees this version. main's package.json is not
+      # rewritten, so the release never has to push past branch protection.
+      - name: Set version
+        run: npm version "${{ steps.version.outputs.version }}" --no-git-tag-version --allow-same-version
+
+      - name: Build renderer
+        run: npm run build
+
+      - name: Build installer
+        run: npx electron-builder --win --publish never
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "v$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "SuperPanel v$VERSION" \
+            --generate-notes \
+            "dist-electron/SuperPanel-Setup-$VERSION.exe" \
+            "dist-electron/SuperPanel-Setup-$VERSION.exe.blockmap" \
+            "dist-electron/latest.yml"

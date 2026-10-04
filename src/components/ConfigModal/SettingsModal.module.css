@@ -139,6 +139,23 @@
   color: var(--color-text-secondary);
 }
 
+/* Update status with a check / restart button beside it */
+.updateRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+}
+
+.updateRow .helpText {
+  margin: 0;
+}
+
+.updateRow .updateButton {
+  flex: 0 0 auto;
+  min-height: 44px;
+}
+
 .modalFooter {
   display: flex;
   gap: var(--spacing-md);

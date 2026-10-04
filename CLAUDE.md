@@ -24,6 +24,9 @@ npm run build
 # Build Windows installer
 npm run electron:build:win
 # Output: dist-electron/*.exe
+
+# Unit tests (Vitest, files in tests/)
+npm test
 ```
 
 ### Node Version
@@ -68,6 +71,7 @@ window.electron.{category}.{method}()
 - `config.*` - Configuration persistence (get/save/delete buttons, settings)
 - `window.*` - Window controls (minimize, maximize, fullscreen, close)
 - `app.*` - Application controls (quit)
+- `updater.*` - Auto-update status, manual check, and restart-to-install
 
 **Handler pattern** (in `electron/ipc/*.js`):
 ```javascript
@@ -272,6 +276,22 @@ Navigation:
 
 - Long-press duration: `LONG_PRESS_DURATION` in `src/utils/constants.js` (default 800ms)
 - Swipe threshold: `SWIPE_THRESHOLD` (default 50px) and `SWIPE_VELOCITY_THRESHOLD` (default 0.3 px/ms)
+
+## CI, Releases, and Auto-Update
+
+**Workflow:** `main` is protected. Work on a feature branch and open a pull request.
+
+- `.github/workflows/ci.yml` runs on every pull request on `windows-latest`. It runs `npm ci`, `npm test`, `npm run build`, and an unpacked `electron-builder --win --dir` package.
+- `.github/workflows/release.yml` runs on every push to `main`, which in practice means every merged PR. Changes that only touch Markdown, `docs/`, or `LICENSE` don't trigger it. It reruns CI, builds the NSIS installer, and creates a GitHub release with tag `vX.Y.Z` that contains `SuperPanel-Setup-X.Y.Z.exe`, its `.blockmap`, and `latest.yml`.
+
+**Versioning** (`scripts/next-version.mjs`): each release bumps the patch number of the latest `v*` tag. For a minor or major release, raise `version` in `package.json` in the PR. A version higher than the latest tag is used as is. CI sets the version only for the build and never commits to `main`, so `package.json` on `main` can lag behind the released version.
+
+**Auto-update** (`electron/updater.js`, using `electron-updater`):
+- Runs only in packaged builds. In dev builds the status is `disabled`.
+- Checks 10s after launch and every 4 hours after that. Updates download automatically and install on the next quit, or right away from the "Restart to update" button in the title bar or in Settings.
+- The update feed is the `build.publish` GitHub config in `package.json`, which electron-builder writes into `resources/app-update.yml`. The repo is public, so no token is needed at runtime.
+- The installer is unsigned. Without a `publisherName`, electron-updater skips signature checks. If you add code signing later, set `CSC_LINK` and `CSC_KEY_PASSWORD` secrets for the release job.
+- Keep `nsis.artifactName` free of spaces. GitHub renames uploaded assets that contain spaces, which breaks the URLs in `latest.yml`.
 
 ## Security Considerations
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useConfig } from '../../contexts/ConfigContext';
+import { useUpdater } from '../../hooks/useUpdater';
 import {
   DEFAULT_GRID_DIMENSIONS,
   METRICS_REFRESH_INTERVAL,
@@ -7,12 +8,25 @@ import {
 } from '../../utils/constants';
 import styles from './SettingsModal.module.css';
 
+function describeUpdate(update) {
+  switch (update?.status) {
+    case 'disabled': return 'Updates are off in development builds';
+    case 'checking': return 'Checking for updates...';
+    case 'available': return `Downloading ${update.version} (${update.percent ?? 0}%)`;
+    case 'downloaded': return `Version ${update.version} is ready to install`;
+    case 'not-available': return 'Up to date';
+    case 'error': return `Update check failed: ${update.error}`;
+    default: return 'Checks for updates automatically';
+  }
+}
+
 export function SettingsModal({ isOpen, onClose }) {
   const { settings, saveSettings } = useConfig();
   const [rows, setRows] = useState(DEFAULT_GRID_DIMENSIONS.rows);
   const [columns, setColumns] = useState(DEFAULT_GRID_DIMENSIONS.columns);
   const [refreshInterval, setRefreshInterval] = useState(METRICS_REFRESH_INTERVAL);
   const [isSaving, setIsSaving] = useState(false);
+  const { status: update, check: checkForUpdate, install: installUpdate } = useUpdater();
 
   const savedRefreshInterval = settings?.metricsRefreshInterval || METRICS_REFRESH_INTERVAL;
 
@@ -144,6 +158,28 @@ export function SettingsModal({ isOpen, onClose }) {
             <p className={styles.helpText}>
               Slower means fewer system queries. Paused while minimized.
             </p>
+          </div>
+
+          <div className={`${styles.formGroup} ${styles.sectionGap}`}>
+            <span className={styles.label}>
+              Updates{update?.currentVersion ? ` · v${update.currentVersion}` : ''}
+            </span>
+            <div className={styles.updateRow}>
+              <p className={styles.helpText}>{describeUpdate(update)}</p>
+              {update?.status === 'downloaded' ? (
+                <button className={`${styles.button} ${styles.saveButton} ${styles.updateButton}`} onClick={installUpdate}>
+                  Restart
+                </button>
+              ) : (
+                <button
+                  className={`${styles.button} ${styles.cancelButton} ${styles.updateButton}`}
+                  onClick={checkForUpdate}
+                  disabled={!update || ['disabled', 'checking', 'available'].includes(update.status)}
+                >
+                  Check now
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
