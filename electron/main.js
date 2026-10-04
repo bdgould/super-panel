@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { setupMetricsHandlers } from './ipc/metrics.js';
 import { setupActionsHandlers } from './ipc/actions.js';
 import { setupConfigHandlers } from './ipc/config.js';
+import { setupUpdater } from './updater.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,6 +56,7 @@ app.whenReady().then(() => {
   setupMetricsHandlers(ipcMain);
   setupActionsHandlers(ipcMain);
   setupConfigHandlers(ipcMain);
+  setupUpdater(ipcMain);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

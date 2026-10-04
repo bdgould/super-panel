@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useUpdater } from '../../hooks/useUpdater';
 import styles from './TitleBar.module.css';
 
 export function TitleBar({ onOpenSettings }) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const { status: update, install: installUpdate } = useUpdater();
 
   // Check window state on mount and when window changes
   useEffect(() => {
@@ -65,6 +67,17 @@ export function TitleBar({ onOpenSettings }) {
         className={styles.dragRegion}
         onDoubleClick={handleDoubleClick}
       />
+
+      {/* Shown once an update has downloaded; it also installs on next quit */}
+      {update?.status === 'downloaded' && (
+        <button
+          className={styles.updateButton}
+          onClick={installUpdate}
+          title={`Restart to install version ${update.version}`}
+        >
+          Restart to update
+        </button>
+      )}
 
       {/* Settings Button */}
       {onOpenSettings && (

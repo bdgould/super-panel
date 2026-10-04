@@ -66,6 +66,20 @@ npm run electron:build:win
 
 This creates a Windows installer in the `dist-electron` directory.
 
+### Tests
+
+```bash
+npm test
+```
+
+## Releases and Updates
+
+Every pull request runs the tests and a packaging check in GitHub Actions. Every merge to `main` publishes a new [GitHub release](https://github.com/bdgould/super-panel/releases) with a Windows installer.
+
+After you install SuperPanel, it checks for new releases on its own. It downloads them in the background and installs them the next time the app closes. To install an update right away, tap **Restart to update** in the title bar. You can also check for updates manually in **Settings**.
+
+Each release bumps the patch version by default. For a minor or major release, raise `version` in `package.json` in your pull request.
+
 ## Usage
 
 ### Configuring Buttons

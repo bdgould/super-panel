@@ -32,6 +32,18 @@ contextBridge.exposeInMainWorld('electron', {
     getIconPath: (filename) => ipcRenderer.invoke('config:get-icon-path', filename),
   },
 
+  // Auto-update (no-op in dev builds, where status is 'disabled')
+  updater: {
+    getStatus: () => ipcRenderer.invoke('updater:get-status'),
+    check: () => ipcRenderer.invoke('updater:check'),
+    install: () => ipcRenderer.send('updater:install'),
+    onStatus: (callback) => {
+      const listener = (event, status) => callback(status);
+      ipcRenderer.on('updater:status', listener);
+      return () => ipcRenderer.removeListener('updater:status', listener);
+    },
+  },
+
   // App controls
   app: {
     quit: () => ipcRenderer.send('app:quit'),
