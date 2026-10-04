@@ -1,7 +1,7 @@
 import { useLongPress } from '../../hooks/useLongPress';
 import styles from './MetricsPanel.module.css';
 
-export function CompactMetricCard({ title, value, unit = '%', icon, color, onExpand }) {
+export function CompactMetricCard({ title, value, unit = '%', icon, color, onExpand, showProgress = true }) {
   const getColor = () => {
     if (color) return color;
 
@@ -29,9 +29,9 @@ export function CompactMetricCard({ title, value, unit = '%', icon, color, onExp
       {/* Icon */}
       <div className={styles.cardIcon}>{icon}</div>
 
-      {/* Circular Progress */}
+      {/* Metric display */}
       <div className={styles.circularProgress}>
-        <svg className={styles.progressRing} viewBox="0 0 120 120">
+        {showProgress && <svg className={styles.progressRing} viewBox="0 0 120 120">
           {/* Background circle */}
           <circle
             className={styles.progressRingBg}
@@ -55,7 +55,7 @@ export function CompactMetricCard({ title, value, unit = '%', icon, color, onExp
             strokeDasharray={`${(percentage / 100) * 326.73} 326.73`}
             transform="rotate(-90 60 60)"
           />
-        </svg>
+        </svg>}
 
         {/* Value in center */}
         <div className={styles.cardValue}>
