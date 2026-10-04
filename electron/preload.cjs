@@ -3,6 +3,18 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electron', {
+  usage: {
+    getStatus: () => ipcRenderer.invoke('usage:get-status'),
+    connect: provider => ipcRenderer.invoke('usage:connect', provider),
+    refresh: (provider, organizationId) => ipcRenderer.invoke('usage:refresh', provider, organizationId),
+    disconnect: provider => ipcRenderer.invoke('usage:disconnect', provider),
+    chooseRuntime: () => ipcRenderer.invoke('usage:choose-runtime'),
+    onStatus: callback => {
+      const listener = (_event, status) => callback(status);
+      ipcRenderer.on('usage:status', listener);
+      return () => ipcRenderer.removeListener('usage:status', listener);
+    },
+  },
   // System metrics
   metrics: {
     getCPU: () => ipcRenderer.invoke('metrics:cpu'),
@@ -23,6 +35,11 @@ contextBridge.exposeInMainWorld('electron', {
 
   // Configuration management
   config: {
+    onSettings: callback => {
+      const listener = (_event, settings) => callback(settings);
+      ipcRenderer.on('config:settings', listener);
+      return () => ipcRenderer.removeListener('config:settings', listener);
+    },
     getButtons: () => ipcRenderer.invoke('config:get-buttons'),
     saveButton: (buttonId, config) => ipcRenderer.invoke('config:save-button', buttonId, config),
     deleteButton: (buttonId) => ipcRenderer.invoke('config:delete-button', buttonId),

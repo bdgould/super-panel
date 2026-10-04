@@ -19,4 +19,23 @@ export function validateSettings(settings) {
       );
     }
   }
+
+  if ('aiUsage' in settings) {
+    if (!settings.aiUsage || typeof settings.aiUsage !== 'object' || Array.isArray(settings.aiUsage)) {
+      throw new Error('Invalid AI usage settings');
+    }
+    for (const [provider, config] of Object.entries(settings.aiUsage)) {
+      if (!['claude', 'codex'].includes(provider) || !config || typeof config !== 'object' ||
+        Array.isArray(config) || Object.keys(config).some(key => key !== 'enabled') ||
+        typeof config.enabled !== 'boolean') throw new Error('Invalid AI usage provider settings');
+    }
+  }
+}
+
+export function mergeSettings(current, patch) {
+  validateSettings(patch);
+  return { ...current, ...patch, aiUsage: {
+    claude: { enabled: false }, codex: { enabled: false },
+    ...current.aiUsage, ...patch.aiUsage,
+  } };
 }
