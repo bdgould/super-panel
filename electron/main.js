@@ -5,6 +5,7 @@ import { setupMetricsHandlers } from './ipc/metrics.js';
 import { setupActionsHandlers } from './ipc/actions.js';
 import { setupConfigHandlers } from './ipc/config.js';
 import { setupUpdater } from './updater.js';
+import { setupUsageHandlers } from './ipc/usage.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,6 +65,7 @@ app.whenReady().then(() => {
   setupMetricsHandlers(ipcMain);
   setupActionsHandlers(ipcMain);
   setupConfigHandlers(ipcMain);
+  setupUsageHandlers(ipcMain, mainWindow);
   setupUpdater(ipcMain);
 
   app.on('activate', () => {

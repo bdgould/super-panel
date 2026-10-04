@@ -77,6 +77,7 @@ export function ConfigProvider({ children }) {
     };
 
     loadConfig();
+    return window.electron.config.onSettings?.(setSettings);
   }, []);
 
   // Save a button configuration

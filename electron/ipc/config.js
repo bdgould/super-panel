@@ -2,7 +2,8 @@ import Store from 'electron-store';
 import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
-import { DEFAULT_REFRESH_INTERVAL, validateSettings } from '../utils/settings.js';
+import { EventEmitter } from 'node:events';
+import { DEFAULT_REFRESH_INTERVAL, mergeSettings } from '../utils/settings.js';
 
 const store = new Store({
   name: 'super-panel-config',
@@ -11,9 +12,32 @@ const store = new Store({
     settings: {
       theme: 'rgb-dark',
       metricsRefreshInterval: DEFAULT_REFRESH_INTERVAL,
+      aiUsage: { claude: { enabled: false }, codex: { enabled: false } },
     },
   },
 });
+
+export const configEvents = new EventEmitter();
+export const getAppSettings = () => mergeSettings({}, store.get('settings', {}));
+export const getUsageConnections = () => store.get('usageConnections', {});
+export function setUsageConnection(provider, connection) {
+  const connections = getUsageConnections();
+  if (connection) connections[provider] = connection;
+  else delete connections[provider];
+  store.set('usageConnections', connections);
+}
+export function saveAppSettings(patch) {
+  const settings = { ...mergeSettings(getAppSettings(), patch), updatedAt: Date.now() };
+  const connections = getUsageConnections();
+  for (const provider of ['claude', 'codex']) {
+    if (settings.aiUsage[provider].enabled && !connections[provider]) {
+      throw new Error(`Connect ${provider === 'claude' ? 'Claude' : 'Codex'} before enabling its card.`);
+    }
+  }
+  store.set('settings', settings);
+  configEvents.emit('settings', settings);
+  return settings;
+}
 
 // Before the refresh interval was configurable, electron-store wrote the old
 // fixed 2000ms default into every config file. Move those to the new default
@@ -108,7 +132,7 @@ export function setupConfigHandlers(ipcMain) {
   // Get application settings
   ipcMain.handle('config:get-settings', () => {
     try {
-      return store.get('settings', {});
+      return getAppSettings();
     } catch (error) {
       console.error('Error getting settings:', error);
       return {};
@@ -118,16 +142,7 @@ export function setupConfigHandlers(ipcMain) {
   // Save application settings
   ipcMain.handle('config:save-settings', (event, settings) => {
     try {
-      validateSettings(settings);
-
-      const currentSettings = store.get('settings', {});
-      const updatedSettings = {
-        ...currentSettings,
-        ...settings,
-        updatedAt: Date.now(),
-      };
-
-      store.set('settings', updatedSettings);
+      const updatedSettings = saveAppSettings(settings);
 
       return { success: true, settings: updatedSettings };
     } catch (error) {

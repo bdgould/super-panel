@@ -122,6 +122,15 @@
   margin-bottom: 0;
 }
 
+.usageSection { margin-top: var(--spacing-lg); }
+.usageProvider { margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid var(--border-color-primary); }
+.usageName { margin: 0 0 var(--spacing-sm); font-size: 15px; font-weight: 600; }
+.usageActions { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); margin-top: var(--spacing-md); }
+.usageActions .button { flex: 0 1 auto; min-height: 44px; padding: 10px 12px; text-transform: none; letter-spacing: 0; }
+.usageToggle { display: flex; align-items: center; gap: 12px; min-height: 44px; margin-top: var(--spacing-sm); font-size: 14px; }
+.usageToggle input { width: 20px; height: 20px; accent-color: var(--color-accent-cyan); }
+.usageError { color: var(--color-warning); font-size: 13px; margin: var(--spacing-sm) 0; overflow-wrap: anywhere; }
+
 /* Two fields side by side (rows and columns) */
 .fieldRow {
   display: grid;

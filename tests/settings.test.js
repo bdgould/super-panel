@@ -4,6 +4,7 @@ import {
   MAX_REFRESH_INTERVAL,
   MIN_REFRESH_INTERVAL,
   validateSettings,
+  mergeSettings,
 } from '../electron/utils/settings.js';
 import { METRICS_REFRESH_INTERVAL, METRICS_REFRESH_OPTIONS } from '../src/utils/constants.js';
 
@@ -16,6 +17,20 @@ describe('refresh interval defaults', () => {
     for (const option of METRICS_REFRESH_OPTIONS) {
       expect(() => validateSettings({ metricsRefreshInterval: option.value })).not.toThrow();
     }
+  });
+});
+
+describe('AI usage settings', () => {
+  it('defaults both providers to disabled and preserves independent provider updates', () => {
+    expect(mergeSettings({}, {}).aiUsage).toEqual({ claude: { enabled: false }, codex: { enabled: false } });
+    const first = mergeSettings({ theme: 'rgb-dark' }, { aiUsage: { codex: { enabled: true } } });
+    const second = mergeSettings(first, { aiUsage: { claude: { enabled: true } } });
+    expect(second.aiUsage).toEqual({ claude: { enabled: true }, codex: { enabled: true } });
+    expect(second.theme).toBe('rgb-dark');
+  });
+  it.each([null, [], { other: { enabled: true } }, { claude: { enabled: 'yes' } },
+    { claude: { enabled: true, token: 'secret' } }])('rejects invalid usage settings: %s', aiUsage => {
+    expect(() => validateSettings({ aiUsage })).toThrow('AI usage');
   });
 });
 

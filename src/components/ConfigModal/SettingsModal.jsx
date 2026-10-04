@@ -7,6 +7,7 @@ import {
   METRICS_REFRESH_OPTIONS,
 } from '../../utils/constants';
 import styles from './SettingsModal.module.css';
+import { UsageSettings } from './UsageSettings';
 
 function describeUpdate(update) {
   switch (update?.status) {
@@ -26,6 +27,7 @@ export function SettingsModal({ isOpen, onClose }) {
   const [columns, setColumns] = useState(DEFAULT_GRID_DIMENSIONS.columns);
   const [refreshInterval, setRefreshInterval] = useState(METRICS_REFRESH_INTERVAL);
   const [isSaving, setIsSaving] = useState(false);
+  const [usageEnabled, setUsageEnabled] = useState({ claude: false, codex: false });
   const { status: update, check: checkForUpdate, install: installUpdate } = useUpdater();
 
   const savedRefreshInterval = settings?.metricsRefreshInterval || METRICS_REFRESH_INTERVAL;
@@ -44,19 +46,20 @@ export function SettingsModal({ isOpen, onClose }) {
       setRows(settings?.gridDimensions?.rows || DEFAULT_GRID_DIMENSIONS.rows);
       setColumns(settings?.gridDimensions?.columns || DEFAULT_GRID_DIMENSIONS.columns);
       setRefreshInterval(settings?.metricsRefreshInterval || METRICS_REFRESH_INTERVAL);
+      setUsageEnabled({ claude: settings?.aiUsage?.claude?.enabled || false, codex: settings?.aiUsage?.codex?.enabled || false });
     }
-  }, [isOpen, settings]);
+  }, [isOpen]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const result = await saveSettings({
-        ...settings,
         gridDimensions: {
           rows: parseInt(rows, 10),
           columns: parseInt(columns, 10),
         },
         metricsRefreshInterval: parseInt(refreshInterval, 10),
+        aiUsage: { claude: { enabled: usageEnabled.claude }, codex: { enabled: usageEnabled.codex } },
       });
 
       if (result.success) {
@@ -181,6 +184,7 @@ export function SettingsModal({ isOpen, onClose }) {
               )}
             </div>
           </div>
+          <UsageSettings enabled={usageEnabled} onChange={(id, enabled) => setUsageEnabled(previous => ({ ...previous, [id]: enabled }))} />
         </div>
 
         <div className={styles.modalFooter}>

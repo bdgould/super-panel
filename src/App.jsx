@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ConfigProvider } from './contexts/ConfigContext';
 import { MetricsProvider } from './contexts/MetricsContext';
+import { UsageProvider } from './contexts/UsageContext';
 import { TitleBar } from './components/TitleBar/TitleBar';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { SettingsModal } from './components/ConfigModal/SettingsModal';
@@ -11,6 +12,7 @@ function App() {
 
   return (
     <ConfigProvider>
+      <UsageProvider>
       <MetricsProvider>
         <TitleBar onOpenSettings={() => setIsSettingsOpen(true)} />
         <Dashboard />
@@ -19,6 +21,7 @@ function App() {
           onClose={() => setIsSettingsOpen(false)}
         />
       </MetricsProvider>
+      </UsageProvider>
     </ConfigProvider>
   );
 }

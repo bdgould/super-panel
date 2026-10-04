@@ -14,3 +14,10 @@ Feature branch: `codex/claude-codex-usage`.
 Diagnostics output is kept in ignored `logs/`; connection tests expose only normalized readings, never raw authenticated responses.
 
 The first rebuild failed because the running prototype held package files open. Closing its processes allowed packaging to pass. This was a file-lock failure, not an application regression.
+
+## Phase 2: service and settings
+
+- 74 tests passed; renderer build and Windows unpacked package passed.
+- The service suite covers independent opt-in collection, overlapping requests, network backoff, provider retry-after, minimize/restore, timeout cleanup, reset-boundary refresh, account changes, disconnect, and disabling during an active read.
+- User connected both accounts in the packaged Settings UI. Dashboard cards are the next phase, so this build still displays only the original system metrics.
+- UI automation was stopped with Escape during the Settings check. Further interaction checks will use an isolated application test harness and a final packaged smoke test.

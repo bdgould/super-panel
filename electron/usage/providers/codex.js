@@ -45,19 +45,22 @@ export class CodexProvider {
     this.starting = null;
     this.loginId = null;
     this.onUpdate = () => {};
+    this.generation = 0;
   }
 
   async start() {
     if (this.rpc && !this.rpc.closed) return this.rpc;
     if (this.starting) return this.starting;
-    this.starting = this.startRuntime().finally(() => { this.starting = null; });
-    return this.starting;
+    const starting = this.startRuntime(this.generation).finally(() => { if (this.starting === starting) this.starting = null; });
+    this.starting = starting;
+    return starting;
   }
-  async startRuntime() {
+  async startRuntime(generation) {
     const executable = await findCodexExecutable(this.executable);
     try { await execute(executable, ['--version'], { windowsHide: true, timeout: 10000 }); }
     catch { throw new UsageError('runtime', 'The Codex executable could not start.'); }
     await fs.mkdir(this.directory, { recursive: true });
+    if (generation !== this.generation) throw new UsageError('cancelled', 'Codex startup was cancelled.');
     const environment = { ...process.env, CODEX_HOME: this.directory };
     delete environment.OPENAI_API_KEY;
     delete environment.CODEX_API_KEY;
@@ -72,13 +75,17 @@ export class CodexProvider {
     try {
       await rpc.request('initialize', { clientInfo: { name: 'super_panel_usage', title: 'SuperPanel', version: '1.0.0' } });
       rpc.notify('initialized');
+      if (generation !== this.generation) throw new UsageError('cancelled', 'Codex startup was cancelled.');
       return rpc;
-    } catch (error) { rpc.dispose(); this.rpc = null; throw error; }
+    } catch (error) { rpc.dispose(); if (this.rpc === rpc) this.rpc = null; throw error; }
   }
   async connect() {
     const rpc = await this.start();
     const existing = await rpc.request('account/read', { refreshToken: true });
-    if (existing.account?.type === 'chatgpt') return;
+    if (existing.account?.type === 'chatgpt') {
+      try { await rpc.request('account/rateLimits/read'); return; }
+      catch { /* Explicit reconnect may repair this SuperPanel-owned login. */ }
+    }
     if (this.loginId) await rpc.request('account/login/cancel', { loginId: this.loginId });
     const login = await rpc.request('account/login/start', { type: 'chatgpt' });
     let url;
@@ -103,5 +110,5 @@ export class CodexProvider {
     this.loginId = null;
     this.dispose();
   }
-  dispose() { this.rpc?.dispose(); this.rpc = null; }
+  dispose() { this.generation++; this.rpc?.dispose(); this.rpc = null; this.starting = null; }
 }
